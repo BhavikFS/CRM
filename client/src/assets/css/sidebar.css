@@ -1,0 +1,303 @@
+.dropdown-item:focus, .dropdown-item:hover  ,.dropdown-item:hover > .text-black {
+
+    color:#025FE0 !important;
+    background-color: #025FE00D !important;
+  
+  }
+  .sidebar-main {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 25px;
+    width: 100%;
+    height: 100vh;
+    gap: 25px;
+    overflow-y: scroll;
+  }
+  .sidebar-main .logo-part {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  .sidebar-main .nav-part {
+    display: flex;
+    flex-direction: column;
+    height: 60%;
+    align-items: flex-start;
+    justify-content: space-between;
+    /* padding-left: 5px; */
+  }
+  .sidebar-main .nav-part .bottom-logoutpart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .sidebar-main .nav-part .bottom-logoutpart .logout-btn,
+  .sidebar-main .nav-part .top-navpart .nav-btn {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    color: black;
+    background: transparent;
+    margin-left: 1rem;
+  }
+  .sidebar-main .nav-part .icon {
+    width: 18px;
+  }
+  .sidebar-main .nav-part .text {
+    font-size: 16px;
+    margin: 0;
+  }
+  .sidebar-main .nav-part .top-navpart {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* gap: 20px; */
+  }
+
+  .logout-btn-sidebar{
+
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    color: black;
+    padding: 25px;
+    background: transparent;
+  }
+
+
+
+.form{
+
+  position: relative;
+}
+
+.form .fa-search{
+
+  position: absolute;
+  top:20px;
+  left: 20px;
+  color: black;
+
+}
+
+.form span{
+
+ position: absolute;
+  right: 17px;
+  top: 13px;
+  padding: 2px;
+  border-left: 1px solid #d1d5db;
+
+}
+
+.left-pan{
+  padding-left: 7px;
+}
+
+.left-pan i{
+ 
+ padding-left: 10px;
+}
+
+.form-input{
+
+  height: 55px;
+  text-indent: 33px;
+  border-radius: 10px;
+}
+
+.form-input:focus{
+
+  box-shadow: none;
+  border:none;
+}
+
+.activebg {
+  background-color: #025FE00D !important;
+  border-radius: 10px !important;
+}
+.activebg > .nav-btn {
+ color: #025FE0 !important;
+}
+
+.top-navpart > a ,.top-navpart > .nav-items > .nav-btns{
+  padding: 10px !important;
+  margin-top: 20px !important;
+}
+.activebg > .nav-btn > p {
+  color:#025FE0
+}
+
+@media screen and (max-width: 560px) {
+  .topBar{
+      flex-wrap: wrap;
+      gap: 10px;
+  }
+  .layout-main .content-part .header-part{
+      padding-left: 0  !important;
+  }
+  .header-main{
+      padding: 12px;
+  }
+  .layout-main .sider{
+      display: none !important;
+  }
+  .layout-main .content-part .content{
+      padding-left: 0 !important;
+  }
+  .main-content-part{
+      height: 80vh;
+     max-height: 80vh !important;
+     overflow: scroll !important;
+  }
+  .login-main .banner-part .banner-content .text-part p{
+      display: none;
+  }
+  .login-main .banner-part .banner-content .text-part{
+      width: 100%;
+      max-width: 100%;
+  }
+  .login-main .form-part, .login-main .banner-part .banner-content{
+      padding: 20px;
+  }
+  .main-content-part.excersiceList .exercise-tab-part {
+      padding: 0 20px 0 20px;
+  }
+  .main-home-part{
+      padding: 30px 0 100px 10px;
+  }
+  .chat-page .header-part .back-button, .chat-page .main-chat-part .chat-side-part{
+      width: 100%;
+  }
+}
+
+.nav-items {
+  position: relative;
+}
+
+.nav-btns {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  color: #333;
+  position: relative;
+}
+
+.nav-btns p {
+  margin: 0;
+}
+
+.nav-btns:hover,
+.nav-btns.active {
+  background-color: #e9ecef;
+  border-radius: 5px;
+}
+
+.nav-btns::after {
+  content: "";
+  position: absolute;
+  left: 37px;
+  top: 60%;
+  height: calc(100% - 70px);
+  width: 2px;
+  background-color: lightgray;
+  transform: translateY(-50%);
+  display: none;
+}
+
+.nav-items.active .nav-btns::after {
+  display: block;
+}
+
+.sub-menu {
+  padding-left: 30px;
+  margin-top: 10px;
+  position: relative;
+}
+
+/* .sub-menu::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #333;
+} */
+
+.sub-item {
+  padding: 10px 35px;
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.sub-item::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 25px;
+  height: 10px; /* Height for curvature */
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid lightgray;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  border-radius: 10px / 5px; /* Creates a rounded curve */
+  background-color: transparent; /* Transparent background */
+  transform: translateY(-50%);
+}
+
+
+.sub-item:hover {
+  color: #007bff;
+}
+
+.dropdown-icon {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.nav-btns.active .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.logout-btn-sidebar {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.logout-btn-sidebar .icon {
+  margin-right: 10px;
+}
+
+.logout-btn-sidebar .text {
+  margin: 0;
+}
+
+
+
+
+.nav-btns{
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    color: black;
+    background: transparent;
+    width: 90%;
+}

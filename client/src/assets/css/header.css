@@ -1,0 +1,191 @@
+.header-main {
+    display: flex;
+    padding: 12px 40px;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1 1 auto;
+    position: relative;
+    z-index: 4;
+  }
+  .header-main .search-part {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .header-main .search-part input {
+    display: flex;
+    padding: 8px 16px;
+    border-radius: 30px;
+    width: 60%;
+    outline: 0;
+    box-shadow: none;
+    border: 1px solid #f4f4f4;
+    font-size: 16px;
+    line-height: 100%;
+    color: #b0b0b0;
+  }
+  .header-main .search-part input:focus{
+    border: 1px solid #ff6036;
+  }
+  .header-main .search-part input::placeholder {
+    color: #b0b0b0;
+    font-size: 16px;
+  }
+  .header-main .search-part .icon-search {
+    color: #b0b0b0;
+    margin-left: -35px;
+  }
+  .header-main .profile-part {
+    display: flex;
+    flex: 1;
+    gap: 15px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .header-main .profile-part .notification-block {
+    display: flex;
+    position: relative;
+  }
+  .header-main .profile-part .notification-block .noti-no {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    font-size: 10px;
+    color: white;
+    border-radius: 30px;
+    background-color: #ff6036;
+    position: absolute;
+    top: -3px;
+    right: -2px;
+  }
+  .header-main .profile-part .profile {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+  }
+  .header-main .profile-part .profile .btn-custom {
+      background-color: transparent;
+      border: none;
+      color: black;
+      font-size: 16px;
+      text-align: justify;
+  }
+  .dropdown-item{
+    font-size: 14px !important;
+  }
+  
+  
+  
+  
+  
+  /* Styles for the dropdowns */
+  .dropdowns {
+    position: absolute;
+    top: 100%; /* Position the dropdowns below the input */
+    /* left: 300px; */
+    width: 40%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* display: none; */
+     /* Initially hide the dropdowns */
+    z-index: 1; /* Ensure it's above other content */
+  }
+  
+  /* Styles for the dropdowns list */
+  .dropdowns-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Styles for the dropdowns list items */
+  .dropdowns-list li {
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  /* Highlight list item on hover */
+  .dropdowns-list li:hover {
+    background-color: #f0f0f0;
+  }
+  .owl-carousel {
+    z-index: 0 !important;
+  }
+  .appointment-card, .assign-doctor-card{
+    z-index: 0 !important;
+  }
+  
+  /* header.css */
+  @media (max-width: 767.98px) { /* Adjust this value based on your mobile breakpoint */
+    .navbar-collapse.collapsing,
+    .navbar-collapse.show {
+      max-height: 100vh;
+      min-height: 100vh;
+      overflow: scroll;
+    }
+  }
+  .navbar-toggler {
+    border: none;
+    /* Optional: add a background color to the toggle button */
+    background-color: #f8f9fa; /* Change as needed */
+  }
+  @media (max-width: 767.98px) {
+    /* Adjust styles specifically for mobile screens here */
+    .navbar {
+      /* Any specific mobile styles */
+    }
+  
+    .navbar-collapse {
+      /* Mobile specific styles */
+      max-height: 100vh;
+      min-height: 100vh;
+      overflow-y: auto; /* Allows scrolling within the navbar */
+    }
+  
+    /* Adjust the padding for search input and other elements as needed */
+    .search-part input {
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+    .search-part{
+      /* margin-left: 40px; */
+      display: none !important;
+    }
+  
+    .profile-part{
+      justify-content: start !important;
+      margin-left: 40px;
+      margin-top: 2rem;
+      margin-bottom: 12rem !important;
+    }
+  
+    .navbar-collapse.show .sidebar-main {
+      display: block !important;
+      width: 100%;
+      height: auto;
+      /* Add any additional styling for mobile sidebar here */
+    }
+  
+  }
+  
+  
+  .navbar-collapse  .sidebar-main {
+    display: none !important;
+  }
+.mobile-logo {
+    display: none; /* Hide logo by default */
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-logo {
+      display: block; /* Show logo on mobile screens */
+    }
+  }
+  

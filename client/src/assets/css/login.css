@@ -1,0 +1,131 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+
+body {
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.login-box {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 550px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.textbox {
+    margin-bottom: 15px;
+}
+
+.textbox label {
+    display: block;
+    margin-bottom: 5px;
+    color:  #01010199;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.textbox input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+
+.textbox input:focus {
+    border-color: #025FE0;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 12px;
+    background-color: #025FE0;
+    color: white;
+    font-size: 16px;
+    margin-top: 1.5rem;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #025FE0;
+    color:white
+}
+
+.forgot {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgot:hover {
+    text-decoration: underline;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .password-container input {
+    flex: 1;
+  }
+  
+  .password-toggle-icon {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+  }
+  .or-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: gray;
+    border: none;
+    margin: 0 10px; /* Adjust spacing around the "or" text */
+  }
+  
+  .or-text {
+    color: gray;
+    font-weight: 500;
+  }
+  
