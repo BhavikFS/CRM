@@ -113,11 +113,12 @@
   border-radius: 10px;
 }
 
-.form-input:focus{
+/* .form-input:focus{
 
   box-shadow: none;
   border:none;
-}
+} */
+
 
 .activebg {
   background-color: #025FE00D !important;

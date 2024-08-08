@@ -6,12 +6,13 @@ import { Navbar, Nav } from "react-bootstrap";
 import logo from "../../assets/images/CRMLogo.png";
 import profile from "../../assets/images/Avatar.png";
 import { Dropdown } from "react-bootstrap";
+import Auth from "../../libs/auth";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const activePage = location.pathname.replace("/", "");
- 
+  const CurrentUser = Auth.getCurrentUser()
 
   return (
     <>
@@ -67,9 +68,9 @@ const Header = () => {
                   </div>
                 <Dropdown>
                   <Dropdown.Toggle id="dropdown-profile" className="btn-custom">
-                  <span className="font-weight-bold">Saathi G.</span>               
+                  <span className="font-weight-bold">{CurrentUser?.username}</span>               
                   <br />
-                   <span className="text-secondary">abc@gmail.com </span>
+                   <span className="text-secondary">{CurrentUser?.email}</span>
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
                     <Dropdown.Item

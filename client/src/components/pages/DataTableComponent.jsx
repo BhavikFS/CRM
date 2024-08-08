@@ -16,11 +16,8 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function createData(id, name, calories, fat, carbs, protein) {
   return {
@@ -65,10 +62,6 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
 function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
@@ -111,6 +104,12 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: 'Protein (g)',
+  },
+  {
+    id: 'actions',
+    numeric: false,
+    disablePadding: false,
+    label: 'Actions',
   },
 ];
 
@@ -184,7 +183,7 @@ function EnhancedTableToolbar(props) {
         }),
       }}
     >
-      {numSelected > 0 ? (
+      {numSelected > 0 && (
         <Typography
           sx={{ flex: '1 1 100%' }}
           color="inherit"
@@ -193,27 +192,12 @@ function EnhancedTableToolbar(props) {
         >
           {numSelected} selected
         </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
-        </Typography>
       )}
 
-      {numSelected > 0 ? (
+      {numSelected > 0  && (
         <Tooltip title="Delete">
           <IconButton>
             <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
           </IconButton>
         </Tooltip>
       )}
@@ -282,7 +266,6 @@ export default function EnhancedTable() {
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -298,7 +281,8 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        {selected.length > 0  &&
+        <EnhancedTableToolbar numSelected={selected.length} />}
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -350,6 +334,14 @@ export default function EnhancedTable() {
                     <TableCell align="right">{row.fat}</TableCell>
                     <TableCell align="right">{row.carbs}</TableCell>
                     <TableCell align="right">{row.protein}</TableCell>
+                    <TableCell align="right">
+                      <IconButton aria-label="edit">
+                        <i className="fas fa-edit"></i>
+                      </IconButton>
+                      <IconButton aria-label="delete">
+                        <i className="fas fa-trash"></i>
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -365,7 +357,7 @@ export default function EnhancedTable() {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {/* <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={rows.length}
@@ -373,7 +365,7 @@ export default function EnhancedTable() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </Paper>
     </Box>
   );

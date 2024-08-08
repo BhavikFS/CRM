@@ -74,7 +74,6 @@ h1 {
     background-color: #025FE0;
     color: white;
     font-size: 16px;
-    margin-top: 1.5rem;
     cursor: pointer;
 }
 
@@ -129,3 +128,6 @@ h1 {
     font-weight: 500;
   }
   
+  .api-error {
+    color: red;
+  }

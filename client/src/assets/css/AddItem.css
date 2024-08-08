@@ -1,0 +1,91 @@
+.addItemSection{
+    background-color: white !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
+
+}
+.btn-outline-primary {
+    border: 1px #025FE0  solid ;
+    border-color: #025FE0 ;
+    background-color: white;
+    color: #025FE0;
+}
+
+.btn-outline-primary:hover {
+    background-color: #025FE0;
+    color: white;
+}
+
+.btn-primary{
+    background-color: #025FE0;
+    color: white;
+}
+
+.addBtn{
+    font-size: 13px;
+    padding: 0.5rem 1rem;
+}
+
+.addItemSection .form-label {
+    font-size: 12px;
+    color: gray;
+    font-weight: 500;
+}
+.addItemSection .form-control {
+    font-size: 13px;
+}
+
+.addItemSection .form-control:disabled{
+    background-color: rgb(235, 234, 234);
+}
+.addItemSection .nameUser{
+    font-size: 12px;
+}
+
+.addItemSection .nameUserSub{
+    font-size: 11px;
+    color:gray
+}
+
+.addItemSection .closebtn {
+    border:black 1px solid;
+    border-radius: 25px;
+    height: 25px;
+    width: 25px;
+    background-color: white;
+    margin-right: 10px;
+}
+
+.addItemSection .btnSelect{
+    background-color: #E6EFFC;
+    color: #025FE0;
+    font-size: 13px;
+    padding: 10px 15px;
+}
+.salesModal tr {
+    border: none !important;
+    border-style: none !important;
+}
+.salesModal tr td span{
+    font-size: 11px;
+    color:gray
+}
+.salesModal tr td p{
+    font-size: 13px;
+    color:rgb(0, 0, 0)
+}
+.salesModal .table>:not(caption)>*>*{
+    border-bottom-width: 0px !important;
+}
+.modal-content{
+    border-radius: 15px !important;
+}
+.salesModal .modal-body {
+    background-color: #f1f1f1 !important;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+.salesModal .table>:not(caption)>*>*{
+    background-color: #f1f1f1 !important;
+
+}
