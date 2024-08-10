@@ -7,6 +7,8 @@ import AddItem from "./components/pages/AddItem";
 import ProtectedRoutes from "./Utils/ProtectedRoutes";
 import History from "./components/pages/History/History";
 import Stage3 from "./components/pages/Stage/Stage3";
+import Stage4 from "./components/pages/Stage/Stage4";
+import PricingCo from "./components/pages/PC/PricingCo";
 
 function App() {
   return (
@@ -16,9 +18,6 @@ function App() {
         <Route path="/" element={<ProtectedRoutes element={<Dashboard />} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/addItem" element={<ProtectedRoutes element={<AddItem />} />} />
-          <Route path="/history" element={<ProtectedRoutes element={<History />} />} />
-          <Route path="/stage" element={<ProtectedRoutes element={<Stage3 />} />} />
-
         </Routes>
       </BrowserRouter>
     </>

@@ -36,10 +36,10 @@ function AddItem() {
       <Layout>
         <div className="m-3">
           <h4>Add New Item</h4>
-          <div className="mx-3 addItemSection p-4">
+          <div className="mx-3   addItemSection p-4 p-md-3 p-sm-0">
             <Card
-              className="mb-4"
-              style={{ padding: "20px", borderRadius: "10px" }}
+              className="mb-4 p-2 p-sm-0"
+              style={{ borderRadius: "10px" }}
             >
               <Card.Body>
                 <Card.Title>Party Information</Card.Title>
@@ -193,8 +193,8 @@ function AddItem() {
             </Card>
             {partyName && (
               <Card
-                className="mb-3"
-                style={{ padding: "20px", borderRadius: "10px" }}
+                className="mb-3 p-2 p-sm-0"
+                style={{ borderRadius: "10px" }}
               >
                 <Card.Body>
                   <Card.Title>Model Information</Card.Title>
