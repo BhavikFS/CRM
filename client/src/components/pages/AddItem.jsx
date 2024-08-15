@@ -5,11 +5,14 @@ import "../../assets/css/AddItem.css";
 import UserCard from "./UserCard";
 import CheckSalesModal from "./CheckSalesModal";
 import DataTableComponent from "./DataTableComponent";
+import SelectUserModal from "./SelectUserModal";
 
 function AddItem() {
   const [partyName, setPartyName] = useState("");
   const [modelName, setModelName] = useState("");
   const [checkSalesModal,setCheckSalesModal] = useState(false)
+  const [selectUserModal,setSelectUserModal] = useState(false)
+
   const users = [
     { id: 1, name: 'Saathi G.', email: 'abc@gmail.com' },
     { id: 2, name: 'Saathi G.', email: 'abc@gmail.com' },
@@ -80,12 +83,26 @@ function AddItem() {
                           md={4}
                           controlId="formSubParty"
                         >
-                          <Form.Label>Party Type</Form.Label>
+                          <Form.Label>Sub-Party</Form.Label>
                           <Form.Control
-                            type="text"
-                            placeholder="Designer"
-                            disabled
-                          />
+                        as="select"
+                        onChange={handlePartyNameChange}
+                        disabled
+                      >
+                        <option value=""> Saathi UIUX Design Company 1</option>
+                        <option value="Saathi UIUX Design Company 1">
+                          Saathi UIUX Design Company 1
+                        </option>
+                        <option value="Saathi UIUX Design Company 2">
+                          Saathi UIUX Design Company 2
+                        </option>
+                        <option value="Saathi UIUX Design Company 3">
+                          Saathi UIUX Design Company 3
+                        </option>
+                        <option value="Saathi UIUX Design Company 4">
+                          Saathi UIUX Design Company 4
+                        </option>
+                      </Form.Control>
                         </Form.Group>
 
                         <Form.Group
@@ -212,7 +229,7 @@ function AddItem() {
                       <Form.Group
                         as={Col}
                         xs={12}
-                        md={modelName ? 4 : 12}
+                        md={modelName ? 6 : 12}
                         controlId="formModelName"
                       >
                         <Form.Label>Model Name</Form.Label>
@@ -241,21 +258,7 @@ function AddItem() {
                           <Form.Group
                             as={Col}
                             xs={12}
-                            md={4}
-                            controlId="formSubParty"
-                          >
-                            <Form.Label>Sub-Party</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Saathi UIUX Design Company"
-                              readOnly
-                            />
-                          </Form.Group>
-
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
+                            md={6}
                             controlId="formListPrice"
                           >
                             <Form.Label>List Price (₹)</Form.Label>
@@ -421,7 +424,10 @@ function AddItem() {
                               className="btn-wrapper"
                               style={{ display: "inline-block" }}
                             >
-          <button  className="btn btnSelect">Select Users</button></div>
+          <button  className="btn btnSelect" onClick={(e) =>{
+            e.preventDefault();
+            setSelectUserModal(true)
+          }}>Select Users</button></div>
         </Col>
       </Row>
       <Row className="">
@@ -445,7 +451,10 @@ function AddItem() {
                               className="btn-wrapper"
                               style={{ display: "inline-block" }}
                             >
-          <button  className="btn btnSelect">Select Users</button></div>
+          <button  className="btn btnSelect" onClick={(e) =>{
+            e.preventDefault();
+            setSelectUserModal(true)
+          }}>Select Users</button></div>
         </Col>
       </Row>
       <Row className="">
@@ -468,6 +477,10 @@ function AddItem() {
 
       </Layout>
       <CheckSalesModal show={checkSalesModal} onHide={() => setCheckSalesModal(false)}/>
+
+      <SelectUserModal show={selectUserModal} onHide={() =>{
+        setSelectUserModal(false)
+      }} />
     </>
   );
 }

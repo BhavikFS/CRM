@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { Modal, Form, Row, Col, Card } from "react-bootstrap";
+import { Modal, Form, Row, Col, Card, Dropdown } from "react-bootstrap";
 import Layout from "../../Layout/Layout";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "../../../assets/css/History.css";
@@ -115,7 +115,7 @@ export default function History() {
 
   return (
     <Layout>
-      <div className="p-5">
+      <div className="p-2 p-md-5 p-sm-3 history">
         <div className="d-flex justify-content-between align-items-center mb-3 w-100">
           <h1 className="mb-0 w-25" style={{ textAlign: "left" }}>
             History
@@ -135,9 +135,7 @@ export default function History() {
         <div className="card">
           <DataTable
             value={customers}
-            paginator
-            rows={5}
-            rowsPerPageOptions={[5, 10, 25, 50]}
+          
             tableStyle={{ minWidth: "50rem" }}
             paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
           >
@@ -206,7 +204,63 @@ export default function History() {
               style={{ width: "25%" }}
             ></Column>
           </DataTable>
+          
         </div>
+
+<div className="row">
+  <div className="col-md-12 col-lg-6 col-sm-12">
+<div className="footerPagination">
+    Show :&nbsp; | &nbsp;
+
+    <Dropdown>
+                  <Dropdown.Toggle id="dropdown-profile" className="btn-custom">
+                  <span className="font-weight-bold">1-10</span>     
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                    >
+                      10-20
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                    >
+                     20-30
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                    >
+                     30-40
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+
+
+                &nbsp; | &nbsp; per pages &nbsp;| &nbsp; 1-25 of 1000
+                </div>
+  </div>
+        <div className="col-md-12 col-lg-6 col-sm-12">
+              <nav data-pagination>
+                <a disabled>prev</a>
+                <ul>
+                  <li class="current">
+                    <a>1</a>
+                  </li>
+                  <li>
+                    <a>2</a>{" "}
+                  </li>
+                  <li>
+                    <a>3</a>
+                  </li>
+                  <li>
+                    <a>…</a>
+                  </li>
+                  <li>
+                    <a>10</a>
+                  </li>
+                </ul>
+                <a>next</a>
+              </nav>
+            </div>
+
+            </div>
       </div>
 
       <Modal
@@ -214,7 +268,8 @@ export default function History() {
         onHide={handleCloseModal}
         centered
         size="lg"
-        className="ModalInformation"
+        className="ModalInformation" 
+        dialogClassName="viewmodal"
       >
         <Modal.Header closeButton>
           <Modal.Title>Model Information</Modal.Title>

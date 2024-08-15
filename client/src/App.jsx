@@ -18,6 +18,11 @@ function App() {
         <Route path="/" element={<ProtectedRoutes element={<Dashboard />} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/addItem" element={<ProtectedRoutes element={<AddItem />} />} />
+          <Route path="/history" element={<ProtectedRoutes element={<History />} />} />
+          <Route path="/stage" element={<ProtectedRoutes element={<Stage3 />} />} />
+          <Route path="/stage4" element={<ProtectedRoutes element={<Stage4 />} />} />
+          <Route path="/pricingCO" element={<ProtectedRoutes element={<PricingCo />} />} />
+
         </Routes>
       </BrowserRouter>
     </>

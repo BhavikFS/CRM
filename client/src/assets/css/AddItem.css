@@ -46,8 +46,7 @@
     font-size: 11px;
     color:gray
 }
-
-.addItemSection .closebtn {
+.closebtn {
     border:black 1px solid;
     border-radius: 25px;
     height: 25px;
@@ -88,4 +87,89 @@
 .salesModal .table>:not(caption)>*>*{
     background-color: #f1f1f1 !important;
 
+}
+
+
+[data-pagination],
+[data-pagination] *,
+[data-pagination] *:before,
+[data-pagination] *:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-kerning: auto;
+}
+[data-pagination] {
+  line-height: 1;
+  font-weight: 400;
+  font-family: 'Open Sans', 'Source Sans Pro', Roboto, 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', 'Myriad Pro', 'Segoe UI', Myriad, Helvetica, 'Lucida Grande', 'DejaVu Sans Condensed', 'Liberation Sans', 'Nimbus Sans L', Tahoma, Geneva, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  margin: 1em auto;
+  text-align: center;
+  transition: font-size .2s ease-in-out;
+}
+[data-pagination] ul {
+  list-style-type: none;
+  display: inline;
+  margin: 0;
+  padding: .5em;
+}
+[data-pagination] ul li {
+  display: inline-block;
+  width: auto;
+  border-radius: 3px;
+  background-color: white;
+  padding: 0.5rem 1rem;
+  margin: 0px 5px;
+}
+
+[data-pagination] a {
+  color: #777;
+  /* padding: .5em; */
+}
+
+[data-pagination] > a {
+    background-color: white;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+}
+[data-pagination] a:focus,
+[data-pagination] a:hover {
+  color: #f60;
+}
+[data-pagination] li.current {
+  background:#025FE0;
+  color:white
+}
+/* Disabled & Hidden Styles */
+[data-pagination] .disabled,
+[data-pagination] [hidden],
+[data-pagination] [disabled] {
+  opacity: .5;
+  pointer-events: none;
+}
+
+
+.custom-modal-width {
+    max-width: 800px; /* Adjust the width as needed */
+    width: 80%; /* This can be used to make the modal responsive */
+  }
+  
+  @media (max-width: 768px) {
+    .custom-modal-width {
+      max-width: 100%; /* Full width on smaller screens */
+      width: 100%;
+    }
+  }
+  
+  .closebtnSelected {
+    border-radius: 25px;
+    height: 25px;
+    width: 25px;
+    background-color: #025FE0;
+    margin-right: 10px;
+    border:none !important
 }
