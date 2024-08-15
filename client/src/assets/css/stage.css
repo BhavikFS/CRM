@@ -1,0 +1,106 @@
+
+  .credit-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+  }
+  
+  .credit-card-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .credit-card-header h5 {
+    margin: 0;
+  }
+  
+  .credit-card-header p {
+    margin: 0;
+    color: #6c757d;
+  }
+  
+  .credit-card-body {
+    display: flex;
+    justify-content: space-between;
+  }
+  .credit-card-details{
+    background-color: #FAFAFA !important;
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .credit-card-details,
+  .credit-card-status {
+    flex: 1;
+  }
+  
+  .credit-card-details p {
+    margin: 0 0 10px 0;
+  }
+  
+  .credit-card-details .text-danger {
+    color: #dc3545;
+  }
+  
+  .credit-card-status {
+    padding-left: 10px;
+  }
+  
+  .credit-card-status h6 {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+  }
+  
+  .credit-card-status .badge {
+    display: block;
+    width: fit-content;
+    margin-bottom: 10px;
+  }
+  
+  .credit-card-status .btn-outline-secondary {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  .credit-card-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem; /* Optional: Add some space between the buttons */
+  }
+  
+  .credit-card-actions .btn {
+    width:100%
+  }
+
+
+ .nameUser{
+    font-size: 12px;
+}
+
+ .nameUserSub{
+    font-size: 11px;
+    color:gray
+}
+.COPO{
+    background-color: #F2F7FD;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.prmclor{
+    color: #025FE0;
+    font-size: 20px;
+}
+.btn-secondary{
+  background-color: #0101010D;
+  color:black
+}
+.Satgebtnreason
+{
+  background-color: transparent !important;
+  margin-top: 5px;
+  margin-left: 10px;
+}

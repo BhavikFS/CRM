@@ -6,7 +6,7 @@ const cors = require('cors');
 require('dotenv').config(); // Ensure to load environment variables
 
 const app = express();
-const port = process.env.PORT || 6000;
+const port = process.env.PORT || 8080;
 
 // Middleware setup
 app.use(cors({
@@ -19,9 +19,11 @@ app.use(
   })
 );
 app.set('trust proxy', true);
-app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+const User = require('./Routes/Authentication/Login')
+
+app.use("/api/user",User);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
