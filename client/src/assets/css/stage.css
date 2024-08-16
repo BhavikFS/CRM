@@ -102,3 +102,9 @@
   margin-top: 5px;
   margin-left: 10px;
 }
+
+@media (min-width: 992px) {
+  .border-left-lg {
+    border-left: 1px solid #d0d0d0;
+  }
+}

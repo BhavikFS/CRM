@@ -49,7 +49,7 @@ function SelectUserModal({ show, onHide }) {
         <Modal.Footer style={{ backgroundColor: "#EAEAEA" }} className="d-flex justify-content-between align-items-center">
             <div>
               <nav data-pagination>
-                <a disabled>prev</a>
+                <a disabled>Prev</a>
                 <ul>
                   <li class="current">
                     <a>1</a>
@@ -67,7 +67,7 @@ function SelectUserModal({ show, onHide }) {
                     <a>10</a>
                   </li>
                 </ul>
-                <a>next</a>
+                <a>Next</a>
               </nav>
             </div>
             <div className="btn-wrapper" style={{ display: "inline-block" }}>
