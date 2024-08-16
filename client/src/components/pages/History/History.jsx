@@ -236,9 +236,9 @@ export default function History() {
                 &nbsp; | &nbsp; per pages &nbsp;| &nbsp; 1-25 of 1000
                 </div>
   </div>
-        <div className="col-md-12 col-lg-6 col-sm-12">
+        <div className="col-md-12 col-lg-6 col-sm-12 d-flex justify-content-end">
               <nav data-pagination>
-                <a disabled>prev</a>
+                <a disabled>Prev</a>
                 <ul>
                   <li class="current">
                     <a>1</a>
@@ -256,7 +256,7 @@ export default function History() {
                     <a>10</a>
                   </li>
                 </ul>
-                <a>next</a>
+                <a>Next</a>
               </nav>
             </div>
 

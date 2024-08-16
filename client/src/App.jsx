@@ -9,6 +9,8 @@ import History from "./components/pages/History/History";
 import Stage3 from "./components/pages/Stage/Stage3";
 import Stage4 from "./components/pages/Stage/Stage4";
 import PricingCo from "./components/pages/PC/PricingCo";
+import PartyData from "./components/pages/History/PartyData";
+import GroupData from "./components/pages/History/GroupData";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/stage" element={<ProtectedRoutes element={<Stage3 />} />} />
           <Route path="/stage4" element={<ProtectedRoutes element={<Stage4 />} />} />
           <Route path="/pricingCO" element={<ProtectedRoutes element={<PricingCo />} />} />
+          <Route path="/partyData" element={<ProtectedRoutes element={<PartyData />} />} />
+          <Route path="/grpData" element={<ProtectedRoutes element={<GroupData />} />} />
 
         </Routes>
       </BrowserRouter>

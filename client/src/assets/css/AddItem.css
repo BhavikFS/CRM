@@ -107,7 +107,7 @@
   font-weight: 400;
   font-family: 'Open Sans', 'Source Sans Pro', Roboto, 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', 'Myriad Pro', 'Segoe UI', Myriad, Helvetica, 'Lucida Grande', 'DejaVu Sans Condensed', 'Liberation Sans', 'Nimbus Sans L', Tahoma, Geneva, Arial, sans-serif;
   -webkit-text-size-adjust: 100%;
-  margin: 1em auto;
+  margin: 1em 1rem;
   text-align: center;
   transition: font-size .2s ease-in-out;
 }
@@ -124,6 +124,7 @@
   background-color: white;
   padding: 0.5rem 1rem;
   margin: 0px 5px;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175); /* Large shadow */
 }
 
 [data-pagination] a {
@@ -133,8 +134,10 @@
 
 [data-pagination] > a {
     background-color: white;
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    padding: 0.3rem 1rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175); /* Large shadow */
+    border: solid 1px  #c4c4c4;
 }
 [data-pagination] a:focus,
 [data-pagination] a:hover {

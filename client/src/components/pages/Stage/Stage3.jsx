@@ -18,7 +18,7 @@ const Stage3 = () => {
           <h1 className="mb-0 col-md-5" style={{ textAlign: "left" }}>
             Stage_3_A
           </h1>
-          <div className="btn-wrapper col-md-3">
+          <div className="btn-wrapper col-lg-3">
             <div className="form align-items-center d-flex">
               <i className="fa fa-search" style={{ top: "13px" }}></i>
               <input
@@ -29,7 +29,7 @@ const Stage3 = () => {
               />
             </div>
           </div>
-          <div className=" col-md-2 d-flex align-items-center">
+          <div className="col-lg-2 d-flex align-items-center border-left-lg">
             <label style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>
               {" "}
               Sort by : &nbsp;{" "}
@@ -42,7 +42,7 @@ const Stage3 = () => {
               <option value=""> ↓ Oldest </option>
             </Form.Control>
           </div>
-          <div className="col-md-2 d-flex align-items-center">
+          <div className="col-lg-2 d-flex align-items-center border-left-lg">
             <label style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>
               {" "}
               Filter by : &nbsp;
