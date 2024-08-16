@@ -88,9 +88,8 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              required
             />
-            {errors.email && <span className="error">{errors.email}</span>}
+            {errors.email && <span className="api-error">{errors.email}</span>}
           </div>
           <div className="textbox">
             <label htmlFor="password">Password</label>
@@ -102,13 +101,12 @@ function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                required
               />
               <span className="password-toggle-icon" onClick={togglePasswordVisibility}>
                 <i className={`fa ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
               </span>
             </div>
-            {errors.password && <span className="error">{errors.password}</span>}
+            {errors.password && <span className="api-error">{errors.password}</span>}
           </div>
           {apiError && <div className="api-error">{apiError}</div>}
           <button type="submit" className="btn mt-3" disabled={loading}>

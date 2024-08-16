@@ -38,4 +38,29 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/get-users", async (req, res) => {
+  try {
+    const { role } = req.query;
+
+    // Create a filter object based on the role parameter
+    const filter = role && role !== 'all' ? { role } : {};
+
+    // Fetch users from the User model with the created filter
+    const users = await User.find(filter);
+
+    if (users.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No users found",
+        data: users,
+      });
+    }
+
+    return res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;
