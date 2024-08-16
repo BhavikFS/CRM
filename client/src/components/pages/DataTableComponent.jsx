@@ -106,6 +106,12 @@ const headCells = [
     label: 'Protein (g)',
   },
   {
+    id: 'nothing1',
+    numeric: false,
+    disablePadding: false,
+    label: '',
+  },
+  {
     id: 'actions',
     numeric: false,
     disablePadding: false,
@@ -334,12 +340,31 @@ export default function EnhancedTable() {
                     <TableCell align="right">{row.fat}</TableCell>
                     <TableCell align="right">{row.carbs}</TableCell>
                     <TableCell align="right">{row.protein}</TableCell>
+
+                    <TableCell >
+                    <div
+                              className="btn-wrapper"
+                              style={{ display: "inline-block" }}
+                            >
+                              <button className="btn btn-outline-primary addBtn" onClick={(e) =>{
+                                e.preventDefault();
+                                //setCheckSalesModal(true)
+                              }}>
+                                Check Sales
+                              </button>
+                            </div>
+                    </TableCell>
                     <TableCell align="right">
                       <IconButton aria-label="edit">
-                        <i className="fas fa-edit"></i>
+                        <div className='d-flex align-items-center justify-content-center' style={{backgroundColor:"#147F4A1A",height:"30px",width:"30px"}}>
+                        <i className="fa fa-pen" style={{color:"#147F4A",fontSize:"12px"}}></i>
+                        </div>
                       </IconButton>
                       <IconButton aria-label="delete">
-                        <i className="fas fa-trash"></i>
+                      <div className='d-flex align-items-center justify-content-center' style={{backgroundColor:"#FDECEA",height:"30px",width:"30px"}}>
+
+                        <i className="fa fa-trash" style={{color:"#DC3545",fontSize:"12px"}}></i>
+                        </div>
                       </IconButton>
                     </TableCell>
                   </TableRow>

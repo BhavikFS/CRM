@@ -22,7 +22,7 @@
   .sidebar-main .nav-part {
     display: flex;
     flex-direction: column;
-    height: 60%;
+    height: 72%;
     align-items: flex-start;
     justify-content: space-between;
     /* padding-left: 5px; */
