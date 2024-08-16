@@ -1,0 +1,57 @@
+const express = require("express");
+const Party = require("../../Models/Party"); // Adjust the path as necessary
+const SubParty = require("../../Models/SubParty");
+const Model = require("../../Models/Modal");
+const router = express.Router();
+
+router.get("/get-parties", async (req, res) => {
+  try {
+    const parties = await Party.find();
+    if (!parties.length > 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "No parties found", data: parties });
+    }
+    return res.status(200).json({ success: true, data: parties });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/get-sub-parties/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log(id, "id");
+
+  try {
+    const subparties = await SubParty.find({ party: id });
+    if (subparties.length === 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "No subparties found", data: subparties });
+    }
+    return res.status(200).json({ success: true, data: subparties });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/get-models/:id", async (req, res) => {
+  const { id } = req.params;
+  console.log(id, "id");
+
+  try {
+    const models = await Model.find({ subParty: id });
+    if (models.length === 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "No models found", data: models });
+    }
+    return res.status(200).json({ success: true, data: models });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+module.exports = router;
