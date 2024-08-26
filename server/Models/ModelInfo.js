@@ -8,7 +8,7 @@ const modelInfo = new mongoose.Schema({
   requestQuantity: { type: Number, required: true },
   reasons: [{type: String, required: true}],
   requestId: { type: mongoose.Schema.Types.ObjectId, ref: 'Request' },
-  generatedBy : { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  generatedBy : { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 
 const ModelInfo = mongoose.model('ModelInfo', modelInfo);

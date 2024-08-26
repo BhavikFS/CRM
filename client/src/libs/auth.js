@@ -32,12 +32,14 @@ const login = async (formdata) => {
       localStorage.setItem(
         "user",
         JSON.stringify({
+          email:userData?.email,
+          mobile_number:userData?.mobile,
+          name: userData?.name,
+          token: userData?.token,
+          profile_image:userData?.profile_image,
           _id:userData?._id,
-          email:userData.email,
-          mobile_number:userData.mobile_number,
-          name: userData.name,
-          token: userData.token,
-          verified:userData?.verified
+          profileCompleted:userData?.profileCompleted,
+          gender:userData?.gender
         })
       );
 

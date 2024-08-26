@@ -8,8 +8,15 @@ import DataTableComponent from "./DataTableComponent";
 import SelectUserModal from "./SelectUserModal";
 import axios from "axios";
 import { BASE_URL } from "../../constants/constants";
+import { getAuthConfig } from "../../libs/http-hydrate";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Checkbox } from "primereact/checkbox";
+import profile from "../../assets/images/Avatar.png";
+import { useNavigate } from "react-router-dom";
 
 function AddItem() {
+  const navigate = useNavigate()
   const [checkSalesModal, setCheckSalesModal] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
   const [partyList, setPartyList] = useState([]);
@@ -29,14 +36,88 @@ function AddItem() {
     quantity: 0,
   });
   const [modalInfoLoading, setModalInfoLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // For success messages
+  const [ModalInfoList, setModalInfoList] = useState([]);
+  const [ModalInfoListLoading, setModalInfoListLoading] = useState(false);
+  const [showAddItemForm, setShowAddItemForm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editItemId, setEditItemId] = useState(null);
+  const [pricingUser , setPricingUser] = useState([]);
+  const [complianceUser , setComplianceUser ] = useState([]);
+  const [role,setRole] = useState("");
+  const handleEdit = (rowData) => {
+    setEditMode(true);
+    setEditItemId(rowData._id);
+
+    // Set the selected modal and modal info data
+    setSelectedModal(rowData.model._id);
+    setSelectedModalDetail(rowData.model);
+    setModalInfoData({
+      requestPrice: rowData.requestPrice,
+      requestDiscount: rowData.requestDiscount,
+      quantity: rowData.requestQuantity,
+    });
+
+    // Show the form
+    setShowAddItemForm(true);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedCustomers.length === 0) {
+      setErrorMessage("No items selected for deletion.");
+      return;
+    }
+
+    setDeleteLoading(true);
+    setErrorMessage("");
+
+    try {
+      await axios.delete(`${BASE_URL}/info/delete-model-info`, {
+        data: { ids: selectedCustomers },
+        ...getAuthConfig(),
+      });
+
+      // Filter out the deleted items from the list
+      setModalInfoList((prevList) =>
+        prevList.filter((item) => !selectedCustomers.includes(item._id))
+      );
+
+      // Clear selected customers after deletion
+      setSelectedCustomers([]);
+    } catch (error) {
+      console.error("Error deleting model info:", error);
+      setErrorMessage(
+        error.response?.data?.error ||
+          "An error occurred during deletion. Please try again."
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setModalInfoData({ ...modalInfoData, [e.target.name]: e.target.value });
+    setErrorMessage("");
   };
 
   const handleSubmit = async () => {
     setModalInfoLoading(true);
+    setErrorMessage("");
     try {
+      if (
+        !modalInfoData.requestPrice ||
+        !modalInfoData.requestDiscount ||
+        !modalInfoData.quantity
+      ) {
+        setErrorMessage(
+          "All fields (price, discount, and quantity) must be filled out."
+        );
+        setModalInfoLoading(false);
+        return;
+      }
+
       const payload = {
         modelId: selectedModal,
         requestPrice: modalInfoData.requestPrice,
@@ -45,15 +126,45 @@ function AddItem() {
         reasons: ["Bulk order"],
       };
 
-      const response = await axios.post(
-        `${BASE_URL}/info/create-model-info`,
-        payload
-      );
-      console.log(response);
+      if (editMode) {
+        // Update existing ModelInfo
+        const response = await axios.put(
+          `${BASE_URL}/info/update-model-info/${editItemId}`,
+          payload,
+          getAuthConfig()
+        );
+
+        // Update the item in the list
+        setModalInfoList((prevList) =>
+          prevList.map((item) =>
+            item._id === editItemId ? response.data.data : item
+          )
+        );
+      } else {
+        const response = await axios.post(
+          `${BASE_URL}/info/create-model-info`,
+          payload,
+          getAuthConfig()
+        );
+
+        setModalInfoList((prevList) => [response.data.data, ...prevList]);
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Error creating model info:", error);
+      setErrorMessage(
+        error.response?.data?.error || "An error occurred. Please try again."
+      );
     } finally {
       setModalInfoLoading(false);
+      // Reset form and states
+      setEditMode(false);
+      setEditItemId(null);
+      setModalInfoData({
+        requestPrice: 0,
+        requestDiscount: 0,
+        quantity: 0,
+      });
+      setShowAddItemForm(false);
     }
   };
 
@@ -81,6 +192,7 @@ function AddItem() {
 
   const handleModelNameChange = (event) => {
     setSelectedModal(event.target.value);
+    fetchModelInfoList(event.target.value);
   };
 
   // const PricingCoordinator = () => {
@@ -177,6 +289,150 @@ function AddItem() {
     }
   }, [selectedModal]);
 
+  const fetchModelInfoList = async (modelID) => {
+    setModalInfoListLoading(true);
+    try {
+      const response = await axios.get(`${BASE_URL}/info/model-info-list`, {
+        params: {
+          modelID: modelID,
+          party: selectedParty,
+          subParty: selectedSubParty,
+        },
+        ...getAuthConfig(),
+      });
+      setModalInfoList(response.data);
+    } catch (error) {
+      console.error("Error fetching model info list:", error);
+      setErrorMessage("An error occurred while fetching model info list.");
+    } finally {
+      setModalInfoListLoading(false);
+    }
+  };
+  const statusBodyTemplate = (rowData) => {
+    return (
+      <button
+        className="btn btn-outline-primary addBtn"
+        style={{ whiteSpace: "nowrap", fontSize: "11px", padding: "7px" }}
+        onClick={(e) => {
+          e.preventDefault();
+          setCheckSalesModal(true);
+        }}
+      >
+        Check Sales
+      </button>
+    );
+  };
+
+  const actionBodyTemplate = (rowData) => {
+    return (
+      <div className="d-flex justify-content-between">
+        <div
+          className="d-flex align-items-center justify-content-center"
+          style={{
+            backgroundColor: "#147F4A1A",
+            height: "30px",
+            width: "30px",
+          }}
+          onClick={() => handleEdit(rowData)}
+        >
+          <i
+            className="fa fa-pen"
+            style={{ color: "#147F4A", fontSize: "12px" }}
+          ></i>
+        </div>
+
+        <div
+          className="d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: "#FDECEA", height: "30px", width: "30px" }}
+          onClick={() => handleDeleteSelected([rowData._id])}
+        >
+          <i
+            className="fa fa-trash"
+            style={{ color: "#DC3545", fontSize: "12px", cursor: "pointer" }}
+          ></i>
+        </div>
+      </div>
+    );
+  };
+
+  const [selectedCustomers, setSelectedCustomers] = useState([]);
+
+  const onHeaderCheckboxChange = (e) => {
+    let _selectedCustomers = [];
+
+    if (e.checked) {
+      _selectedCustomers = ModalInfoList.map((customer) => customer._id);
+    }
+
+    setSelectedCustomers(_selectedCustomers);
+  };
+
+  const onCheckboxChange = (e, id) => {
+    let _selectedCustomers = [...selectedCustomers];
+
+    if (e.checked) {
+      _selectedCustomers.push(id);
+    } else {
+      _selectedCustomers = _selectedCustomers.filter(
+        (customerId) => customerId !== id
+      );
+    }
+
+    setSelectedCustomers(_selectedCustomers);
+  };
+
+  const isAllSelected =
+    ModalInfoList.length > 0 &&
+    selectedCustomers.length === ModalInfoList.length;
+    const handleSubmitRequest = async () => {
+      setModalInfoLoading(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+  
+      if (!pricingUser.length) {
+        setErrorMessage("Please select at least one Pricing Coordinator.");
+        setModalInfoLoading(false);
+        return;
+      }
+  
+      if (!complianceUser.length) {
+        setErrorMessage("Please select at least one Compliance Officer.");
+        setModalInfoLoading(false);
+        return;
+      }
+  
+      const payload = {
+        party: selectedParty,
+        subParty: selectedSubParty,
+        modelInfo: ModalInfoList.map((item) => item._id),
+        pricingUsers: pricingUser.map((user) => user._id),
+        financeUsers: complianceUser.map((user) => user._id),
+        status: "Pending", // Default status, adjust as necessary
+        generatedBy: "currentUserId", // Replace with the actual logged-in user's ID
+      };
+  
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/request/request-generate`,
+          payload,
+          getAuthConfig()
+        );
+  
+        setSuccessMessage("Request created successfully!");
+
+        setTimeout(() =>{
+            navigate("/")
+        },3000)
+        // Handle any additional success actions like resetting forms
+      } catch (error) {
+        console.error("Error creating request:", error);
+        setErrorMessage(
+          error.response?.data?.error || "An error occurred. Please try again."
+        );
+      } finally {
+        setModalInfoLoading(false);
+      }
+    };
   return (
     <>
       <Layout>
@@ -379,217 +635,375 @@ function AddItem() {
                 <Card.Body>
                   <Card.Title>Model Information</Card.Title>
 
-                  {/* <Card>
-                    <Card.Title className="p-3">Your Models</Card.Title>
-                    <Card.Body>
-                      <DataTableComponent />
-                    </Card.Body>
-                  </Card> */}
-
-                  <Form>
-                    <Row className="mb-3">
-                      <Form.Group
-                        as={Col}
-                        xs={12}
-                        md={selectedModal ? 6 : 12}
-                        controlId="formModelName"
-                      >
-                        <Form.Label>Model Name</Form.Label>
-                        <Form.Control
-                          as="select"
-                          onChange={handleModelNameChange}
-                          value={selectedModal}
-                          disabled={modalListLoading || selectedParty === ""}
-                        >
-                          {modalList && modalList.length > 0 ? (
-                            <>
-                              <option value="">Select Model</option>
-                              {modalList.map((item) => (
-                                <option key={item?._id} value={item?._id}>
-                                  {item.name}
-                                </option>
-                              ))}
-                            </>
-                          ) : (
-                            <option value="">No models found</option>
-                          )}
-                        </Form.Control>
-                      </Form.Group>
-
-                      {selectedModal !== "" && (
-                        <>
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={6}
-                            controlId="formListPrice"
-                          >
-                            <Form.Label>List Price (₹)</Form.Label>
-                            <Form.Control
-                              type="text"
-                              value={
-                                selectedModalDetail?.listPrice
-                                  ? selectedModalDetail?.listPrice
-                                  : 0
-                              }
-                              disabled
-                            />
-                          </Form.Group>
-                        </>
-                      )}
-                    </Row>
-
-                    {selectedModal && (
-                      <>
-                        <Row className="mb-3">
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
-                            controlId="formDiscount"
-                          >
-                            <Form.Label>Discount (%)</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="10%"
-                              disabled
-                            />
-                          </Form.Group>
-
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
-                            controlId="formNetPrice"
-                          >
-                            <Form.Label>Net Price (₹)</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="15,000"
-                              disabled
-                            />
-                          </Form.Group>
-
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
-                            controlId="formRequestPrice"
-                          >
-                            <Form.Label>Request Price (₹)</Form.Label>
-                            <Form.Control
-                              type="text"
-                              onChange={handleChange}
-                              name="requestPrice"
-                              value={modalInfoData.requestPrice}
-                            />
-                          </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
-                            controlId="formRequestDiscount"
-                          >
-                            <Form.Label>Request Discount (₹)</Form.Label>
-                            <Form.Control
-                              type="text"
-                              onChange={handleChange}
-                              name="requestDiscount"
-                              value={modalInfoData.requestDiscount}
-                            />
-                          </Form.Group>
-
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
-                            controlId="formQuantity"
-                          >
-                            <Form.Label>Quantity</Form.Label>
-                            <Form.Control
-                              type="text"
-                              onChange={handleChange}
-                              name="quantity"
-                              value={modalInfoData.quantity}
-                            />
-                          </Form.Group>
-
-                          <Form.Group
-                            as={Col}
-                            xs={12}
-                            md={4}
-                            controlId="formStockQuantity"
-                          >
-                            <Form.Label>Stock Quantity</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="20,200"
-                              disabled
-                            />
-                          </Form.Group>
-                        </Row>
-                      </>
-                    )}
-                    {selectedModal && (
-                      <>
-                        <Row className="mb-3">
-                          <Form.Group as={Col} xs={12} controlId="formReasons">
-                            <Form.Label>Reasons</Form.Label>
-                            <Form.Control as="select">
-                              <option>Select Reasons</option>
-                              <option>Reason 1</option>
-                              <option>Reason 2</option>
-                              <option>Reason 3</option>
-                            </Form.Control>
-                          </Form.Group>
-                        </Row>
-
-                        <Row className="mb-1">
-                          <Col className="d-flex justify-content-start" xs={12}>
-                            <div
-                              className="btn-wrapper"
-                              style={{ display: "inline-block" }}
-                            >
+                  {ModalInfoList && ModalInfoList?.length > 0 && (
+                    <div className="card">
+                      <Card>
+                        <Card.Title className="p-3">
+                          <div className="d-flex justify-content-between">
+                            <h5>Your Models</h5>
+                            <div>
                               <button
-                                className="btn btn-outline-primary addBtn"
+                                className="btn btnSelect"
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  setCheckSalesModal(true);
+                                  setShowAddItemForm(true); // Show the form when "+ Add Item" is clicked
                                 }}
                               >
-                                Check Sales
+                                + Add Item
                               </button>
                             </div>
-                          </Col>
-                        </Row>
+                          </div>
+                        </Card.Title>
+                        <Card.Body>
+                          <DataTable
+                            value={ModalInfoList}
+                            tableStyle={{ minWidth: "50rem" }}
+                            paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
+                          >
+                            <Column
+                              header={
+                                <Checkbox
+                                  checked={isAllSelected}
+                                  onChange={onHeaderCheckboxChange}
+                                />
+                              }
+                              body={(rowData) => (
+                                <Checkbox
+                                  checked={selectedCustomers.includes(
+                                    rowData._id
+                                  )}
+                                  onChange={(e) =>
+                                    onCheckboxChange(e, rowData._id)
+                                  }
+                                />
+                              )}
+                              style={{ width: "5%" }}
+                            />
+                            <Column
+                              field="id"
+                              header=""
+                              style={{ width: "20%" }}
+                            ></Column>
+                            <Column
+                              header="NAME"
+                              style={{ width: "20%" }}
+                              body={(rowData) => rowData?.model?.name}
+                            ></Column>
+                            <Column
+                              field="date"
+                              header="ITEM NO."
+                              style={{ width: "20%" }}
+                              body={(rowData) => rowData?.model?.itemCode}
+                            ></Column>
+                            <Column
+                              field="subParty"
+                              header="SUB-PARTY"
+                              style={{ width: "20%" }}
+                              body={(rowData) => rowData?.model?.subParty?.name}
+                            ></Column>
+                            <Column
+                              field="listPrice"
+                              header="LIST PRICE"
+                              style={{ width: "20%" }}
+                              body={(rowData) =>
+                                "₹" + rowData?.model?.listPrice
+                              }
+                            ></Column>
+                            <Column
+                              field="discount"
+                              header="DISCOUNT"
+                              style={{ width: "10%" }}
+                              body={(rowData) => rowData?.model?.discount + "%"}
+                            ></Column>
+                            <Column
+                              field="netPrice"
+                              header="NET PRICE"
+                              style={{ width: "25%" }}
+                              body={(rowData) => "₹" + rowData?.model?.itemRate}
+                            ></Column>
+                            <Column
+                              field="reqPrice"
+                              header="REQ. PRICE"
+                              style={{ width: "25%" }}
+                              body={(rowData) => "₹" + rowData?.requestPrice}
+                            ></Column>
+                            <Column
+                              field="reqDiscount"
+                              header="REQ DISCOUNT"
+                              style={{ width: "25%" }}
+                              body={(rowData) => rowData?.requestDiscount + "%"}
+                            ></Column>
+                            <Column
+                              field="qty"
+                              header="QTY"
+                              style={{ width: "25%" }}
+                              body={(rowData) => rowData?.requestQuantity}
+                            ></Column>
+                            <Column
+                              field="reasons"
+                              header="Reasons"
+                              style={{ width: "25%" }}
+                            ></Column>
+                            <Column
+                              field="stockQTY"
+                              header="STOCK QTY"
+                              style={{ width: "25%" }}
+                              body={(rowData) => rowData?.model?.quantity}
+                            ></Column>
+                            <Column
+                              field="status"
+                              header="Status"
+                              body={statusBodyTemplate}
+                              style={{ width: "25%" }}
+                            ></Column>
+                            <Column
+                              field="action"
+                              header={
+                                <div
+                                  className="d-flex align-items-center justify-content-center"
+                                  style={{
+                                    backgroundColor: "#FDECEA",
+                                    height: "30px",
+                                    width: "30px",
+                                  }}
+                                >
+                                  <i
+                                    className="fa fa-trash"
+                                    style={{
+                                      color: "#DC3545",
+                                      fontSize: "12px",
+                                    }}
+                                  ></i>
+                                </div>
+                              } // Using PrimeIcons
+                              body={actionBodyTemplate}
+                              style={{ width: "25%" }}
+                            ></Column>
+                          </DataTable>{" "}
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  )}
+                  {(editMode ||
+                    showAddItemForm ||
+                    ModalInfoList?.length === 0) && (
+                    <Form>
+                      <Row className="mb-3">
+                        <Form.Group
+                          as={Col}
+                          xs={12}
+                          md={selectedModal ? 6 : 12}
+                          controlId="formModelName"
+                        >
+                          <Form.Label>Model Name</Form.Label>
+                          <Form.Control
+                            as="select"
+                            onChange={handleModelNameChange}
+                            value={selectedModal}
+                            disabled={modalListLoading || selectedParty === ""}
+                          >
+                            {modalList && modalList.length > 0 ? (
+                              <>
+                                <option value="">Select Model</option>
+                                {modalList.map((item) => (
+                                  <option key={item?._id} value={item?._id}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </>
+                            ) : (
+                              <option value="">No models found</option>
+                            )}
+                          </Form.Control>
+                        </Form.Group>
 
-                        {/* <hr /> */}
-
-                        <Row>
-                          <Col className="d-flex justify-content-end" xs={12}>
-                            <div
-                              className="btn-wrapper"
-                              style={{ display: "inline-block" }}
+                        {selectedModal !== "" && (
+                          <>
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={6}
+                              controlId="formListPrice"
                             >
-                              <button
-                                type="button"
-                                onClick={handleSubmit}
-                                disabled={modalInfoLoading}
-                                className="btn btn-primary addBtn"
+                              <Form.Label>List Price (₹)</Form.Label>
+                              <Form.Control
+                                type="text"
+                                value={
+                                  selectedModalDetail?.listPrice
+                                    ? selectedModalDetail?.listPrice
+                                    : 0
+                                }
+                                disabled
+                              />
+                            </Form.Group>
+                          </>
+                        )}
+                      </Row>
+
+                      {selectedModal && (
+                        <>
+                          <Row className="mb-3">
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={4}
+                              controlId="formDiscount"
+                            >
+                              <Form.Label>Discount (%)</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="10%"
+                                disabled
+                              />
+                            </Form.Group>
+
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={4}
+                              controlId="formNetPrice"
+                            >
+                              <Form.Label>Net Price (₹)</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="15,000"
+                                disabled
+                              />
+                            </Form.Group>
+
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={4}
+                              controlId="formRequestPrice"
+                            >
+                              <Form.Label>Request Price (₹)</Form.Label>
+                              <Form.Control
+                                type="text"
+                                onChange={handleChange}
+                                name="requestPrice"
+                                value={modalInfoData.requestPrice}
+                              />
+                            </Form.Group>
+                          </Row>
+
+                          <Row className="mb-3">
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={4}
+                              controlId="formRequestDiscount"
+                            >
+                              <Form.Label>Request Discount (₹)</Form.Label>
+                              <Form.Control
+                                type="text"
+                                onChange={handleChange}
+                                name="requestDiscount"
+                                value={modalInfoData.requestDiscount}
+                              />
+                            </Form.Group>
+
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={4}
+                              controlId="formQuantity"
+                            >
+                              <Form.Label>Quantity</Form.Label>
+                              <Form.Control
+                                type="text"
+                                onChange={handleChange}
+                                name="quantity"
+                                value={modalInfoData.quantity}
+                              />
+                            </Form.Group>
+
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              md={4}
+                              controlId="formStockQuantity"
+                            >
+                              <Form.Label>Stock Quantity</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="20,200"
+                                disabled
+                              />
+                            </Form.Group>
+                          </Row>
+                        </>
+                      )}
+                      {selectedModal && (
+                        <>
+                          <Row className="mb-3">
+                            <Form.Group
+                              as={Col}
+                              xs={12}
+                              controlId="formReasons"
+                            >
+                              <Form.Label>Reasons</Form.Label>
+                              <Form.Control as="select">
+                                <option>Select Reasons</option>
+                                <option>Reason 1</option>
+                                <option>Reason 2</option>
+                                <option>Reason 3</option>
+                              </Form.Control>
+                            </Form.Group>
+                          </Row>
+
+                          <Row className="mb-1">
+                            <Col
+                              className="d-flex justify-content-start"
+                              xs={12}
+                            >
+                              <div
+                                className="btn-wrapper"
+                                style={{ display: "inline-block" }}
                               >
-                                {modalInfoLoading
-                                  ? "Processsing..."
-                                  : "Confirm Modal"}
-                              </button>
-                            </div>
-                          </Col>
-                        </Row>
-                      </>
-                    )}
-                  </Form>
+                                <button
+                                  className="btn btn-outline-primary addBtn"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCheckSalesModal(true);
+                                  }}
+                                >
+                                  Check Sales
+                                </button>
+                              </div>
+                            </Col>
+                          </Row>
+
+                          {/* <hr /> */}
+
+                          <Row>
+                            <Col className="d-flex justify-content-end" xs={12}>
+                              <div
+                                className="btn-wrapper"
+                                style={{ display: "inline-block" }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={handleSubmit}
+                                  disabled={modalInfoLoading}
+                                  className="btn btn-primary addBtn"
+                                >
+                                  {modalInfoLoading
+                                    ? "Processsing..."
+                                    : "Confirm Modal"}
+                                </button>
+                                {errorMessage && (
+                                  <div className="text-danger">
+                                    {errorMessage}
+                                  </div>
+                                )}
+                              </div>
+                            </Col>
+                          </Row>
+                        </>
+                      )}
+                    </Form>
+                  )}
                 </Card.Body>
               </Card>
             )}
@@ -608,6 +1022,7 @@ function AddItem() {
                             className="btn btnSelect"
                             onClick={(e) => {
                               e.preventDefault();
+                              setRole("PC")
                               setSelectUserModal(true);
                             }}
                           >
@@ -617,13 +1032,24 @@ function AddItem() {
                       </Col>
                     </Row>
                     <Row className="">
-                      {users.map((user) => (
+
+                      {pricingUser?.length <= 0 && <div className="text-center">No User Selected</div>}
+                      {pricingUser && pricingUser.map((user) => (
                         <Col key={user.id} xs={12} md={6} lg={6}>
-                          <UserCard
-                            name={user.name}
-                            email={user.email}
-                            onRemove={() => handleRemove(user.id)}
-                          />
+                         <Card className="d-flex flex-row align-items-center mb-3">
+                  <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%', marginLeft: "5px" }} />
+                  <Card.Body className="d-flex flex-column align-items-start">
+                    <span className="mb-0 nameUser">{user?.username}</span>
+                    <span className="mb-0 nameUserSub">{user?.email}</span>
+                  </Card.Body>
+                  <button
+                    className={'closebtn'}
+                    onClick={() => {
+                      setPricingUser(pricingUser.filter((u) => u._id !== user._id));
+                    }}                  >
+                    <i className={'fa fa-xmark'} ></i>
+                  </button>
+                </Card>
                         </Col>
                       ))}
                     </Row>
@@ -633,7 +1059,7 @@ function AddItem() {
                   <Card className="p-3">
                     <Row className="my-4">
                       <Col className="d-flex justify-content-between align-items-center ">
-                        <h5>Pricing Coordinator</h5>
+                        <h5>Compliance Officer</h5>
                         <div
                           className="btn-wrapper"
                           style={{ display: "inline-block" }}
@@ -642,6 +1068,7 @@ function AddItem() {
                             className="btn btnSelect"
                             onClick={(e) => {
                               e.preventDefault();
+                              setRole("CO")
                               setSelectUserModal(true);
                             }}
                           >
@@ -651,13 +1078,25 @@ function AddItem() {
                       </Col>
                     </Row>
                     <Row className="">
-                      {users.map((user) => (
+                    {complianceUser?.length <= 0 && <div className="text-center">No User Selected</div>}
+
+                    {complianceUser && complianceUser.map((user) => (
                         <Col key={user.id} xs={12} md={6} lg={6}>
-                          <UserCard
-                            name={user.name}
-                            email={user.email}
-                            onRemove={() => handleRemove(user.id)}
-                          />
+                         <Card className="d-flex flex-row align-items-center mb-3">
+                  <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%', marginLeft: "5px" }} />
+                  <Card.Body className="d-flex flex-column align-items-start">
+                    <span className="mb-0 nameUser">{user?.username}</span>
+                    <span className="mb-0 nameUserSub">{user?.email}</span>
+                  </Card.Body>
+                  <button
+                    className={'closebtn'}
+                    onClick={() => {
+                      setComplianceUser(complianceUser.filter((u) => u._id !== user._id));
+                    }}
+                  >
+                    <i className={'fa fa-xmark'} ></i>
+                  </button>
+                </Card>
                         </Col>
                       ))}
                     </Row>
@@ -665,6 +1104,23 @@ function AddItem() {
                 </Col>
               </Row>
             )}
+              {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+            {successMessage && <div className="alert alert-success">{successMessage}</div>}
+
+
+          <div className="d-flex justify-content-end mt-2">
+              <button className="btnscndry">Cancel</button>
+              <button
+                className="btnprm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSubmitRequest(); // Call the function to submit the request
+                }}
+                disabled={modalInfoLoading}
+              >
+                {modalInfoLoading ? "Processing..." : "Submit"}
+              </button>
+            </div>
           </div>
         </div>
       </Layout>
@@ -674,6 +1130,11 @@ function AddItem() {
       />
 
       <SelectUserModal
+        role={role}
+        pricingUser={pricingUser}
+        complianceUser={complianceUser}
+        setPricingUser={setPricingUser}
+        setComplianceUser={setComplianceUser}
         show={selectUserModal}
         onHide={() => {
           setSelectUserModal(false);
