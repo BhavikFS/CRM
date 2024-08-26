@@ -4,7 +4,8 @@ const Request = require("../../Models/Request"); // Adjust the path to your Mode
 const User = require("../../Models/User");
 const Party = require("../../Models/Party")
 const SubParty = require("../../Models/SubParty")
-const ModelInfo = require("../../Models/ModelInfo")
+const ModelInfo = require("../../Models/ModelInfo");
+const authenticateToken = require("../../Middleware/AuthenticateToken");
 router.post("/create-request", async (req, res) => {
   try {
     const {
@@ -65,10 +66,10 @@ router.post("/create-request", async (req, res) => {
   }
 });
 
-router.post("/request-generate",  async (req, res) => { 
+router.post("/request-generate",authenticateToken,async (req, res) => { 
   try {
-    const { party, subParty, modelInfo, pricingUsers, financeUsers, status, generatedBy } = req.body;
-
+    const { party, subParty, modelInfo, pricingUsers, financeUsers, status } = req.body;
+    const generatedBy = req?.user?._id
     // Validate Party
     const partyExists = await Party.findById(party);
     if (!partyExists) {
@@ -94,7 +95,7 @@ router.post("/request-generate",  async (req, res) => {
     }
 
     // Validate Finance Users
-    const financeUsersExist = await User.find({ _id: { $in: financeUsers ,role:"CO"} });
+    const financeUsersExist = await User.find({ _id: { $in: financeUsers },role:"CO" });
     if (financeUsersExist.length !== financeUsers.length) {
       return res.status(400).json({ error: 'One or more Finance User IDs are invalid' });
     }
@@ -131,6 +132,7 @@ router.post("/request-generate",  async (req, res) => {
     );
     res.status(201).json({ message: 'Request created successfully', request: newRequest });
   } catch (error) {
+    console.log("request-generate",error)
     res.status(500).json({ error: 'An error occurred while creating the request' });
   }
 })
