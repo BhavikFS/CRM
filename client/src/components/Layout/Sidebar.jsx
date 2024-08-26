@@ -5,7 +5,7 @@ import History from "../../assets/images/History.svg";
 import Logout from "../../assets/images/Logout.svg";
 
 import "../../assets/css/sidebar.css";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../Modal/LogoutModal";
 
 const Sidebar = () => {
@@ -16,6 +16,8 @@ const Sidebar = () => {
   const handleHistoryClick = () => {
     setIsHistoryOpen(!isHistoryOpen);
   };
+
+  const navigate = useNavigate()
 
   return (
     <>
@@ -124,7 +126,7 @@ const Sidebar = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <p className="text">History</p>
+                <p onClick={()=>navigate('/history')} className="text">History</p>
                 <i className={`fa fa-angle-${isHistoryOpen ? "up" : "down"} dropdown-icon`}></i>
                 </div>
               </div>

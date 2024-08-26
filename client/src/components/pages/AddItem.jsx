@@ -1,38 +1,181 @@
-import React, { useState } from "react";
-import { Container,Card, Form, Row, Col, Button } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Card, Form, Row, Col } from "react-bootstrap";
 import Layout from "../Layout/Layout";
 import "../../assets/css/AddItem.css";
 import UserCard from "./UserCard";
 import CheckSalesModal from "./CheckSalesModal";
 import DataTableComponent from "./DataTableComponent";
 import SelectUserModal from "./SelectUserModal";
+import axios from "axios";
+import { BASE_URL } from "../../constants/constants";
 
 function AddItem() {
-  const [partyName, setPartyName] = useState("");
-  const [modelName, setModelName] = useState("");
-  const [checkSalesModal,setCheckSalesModal] = useState(false)
-  const [selectUserModal,setSelectUserModal] = useState(false)
+  const [checkSalesModal, setCheckSalesModal] = useState(false);
+  const [selectUserModal, setSelectUserModal] = useState(false);
+  const [partyList, setPartyList] = useState([]);
+  const [partyListLoading, setPartyListLoading] = useState(true);
+  const [selectedParty, setSelectedParty] = useState("");
+  const [selectedPartyDetail, setSelectedPartyDetail] = useState({});
+  const [subPartyList, setSubPartyList] = useState([]);
+  const [subPartyListLoading, setSubPartyListLoading] = useState(true);
+  const [selectedSubParty, setSelectedSubParty] = useState("");
+  const [modalList, setModalList] = useState([]);
+  const [modalListLoading, setModalListLoading] = useState(true);
+  const [selectedModal, setSelectedModal] = useState("");
+  const [selectedModalDetail, setSelectedModalDetail] = useState({});
+  const [modalInfoData, setModalInfoData] = useState({
+    requestPrice: 0,
+    requestDiscount: 0,
+    quantity: 0,
+  });
+  const [modalInfoLoading, setModalInfoLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setModalInfoData({ ...modalInfoData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    setModalInfoLoading(true);
+    try {
+      const payload = {
+        modelId: selectedModal,
+        requestPrice: modalInfoData.requestPrice,
+        requestDiscount: modalInfoData.requestDiscount,
+        requestQuantity: modalInfoData.quantity,
+        reasons: ["Bulk order"],
+      };
+
+      const response = await axios.post(
+        `${BASE_URL}/info/create-model-info`,
+        payload
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setModalInfoLoading(false);
+    }
+  };
 
   const users = [
-    { id: 1, name: 'Saathi G.', email: 'abc@gmail.com' },
-    { id: 2, name: 'Saathi G.', email: 'abc@gmail.com' },
-    { id: 3, name: 'Saathi G.', email: 'abc@gmail.com' },
-    { id: 4, name: 'Saathi G.', email: 'abc@gmail.com' },
-    { id: 5, name: 'Saathi G.', email: 'abc@gmail.com' }
+    { id: 1, name: "Saathi G.", email: "abc@gmail.com" },
+    { id: 2, name: "Saathi G.", email: "abc@gmail.com" },
+    { id: 3, name: "Saathi G.", email: "abc@gmail.com" },
+    { id: 4, name: "Saathi G.", email: "abc@gmail.com" },
+    { id: 5, name: "Saathi G.", email: "abc@gmail.com" },
   ];
   const handlePartyNameChange = (event) => {
-    setPartyName(event.target.value);
+    setSelectedParty(event.target.value);
+    setSelectedSubParty("");
+    setSubPartyList([]);
+    setSelectedModal("");
+    setSelectedModalDetail({});
+    setModalList([]);
+  };
+
+  const handleSubPartyNameChange = (event) => {
+    setSelectedSubParty(event.target.value);
+    setSelectedModal("");
+    setSelectedModalDetail({});
   };
 
   const handleModelNameChange = (event) => {
-    setModelName(event.target.value);
+    setSelectedModal(event.target.value);
   };
-  
-  const PricingCoordinator = () => {
-    const handleRemove = (id) => {
-      console.log(`Remove user with id: ${id}`);
+
+  // const PricingCoordinator = () => {
+  //   const handleRemove = (id) => {
+  //     console.log(`Remove user with id: ${id}`);
+  //   };
+  // };
+
+  useEffect(() => {
+    const fetchPartyData = async () => {
+      setPartyListLoading(true);
+      try {
+        const response = await axios.get(`${BASE_URL}/party/get-parties`);
+        setPartyList(response.data.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setPartyListLoading(false);
+      }
     };
-  }
+
+    fetchPartyData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedParty !== "") {
+      const findParty = partyList.find((item) => item._id === selectedParty);
+      setSelectedPartyDetail(findParty);
+      console.log(findParty, "findParty");
+    } else {
+      setSelectedPartyDetail({});
+    }
+  }, [selectedParty]);
+
+  useEffect(() => {
+    if (selectedParty !== "") {
+      const fetchSubPartyData = async () => {
+        setSubPartyListLoading(true);
+        try {
+          const response = await axios.get(
+            `${BASE_URL}/party/get-sub-parties/${selectedParty}`
+          );
+          setSubPartyList(response.data.data);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setSubPartyListLoading(false);
+        }
+      };
+
+      fetchSubPartyData();
+    } else {
+      setSubPartyList([]);
+      setSelectedSubParty("");
+    }
+  }, [selectedParty]);
+
+  useEffect(() => {
+    if (selectedParty !== "") {
+      if (selectedSubParty !== "") {
+        console.log(selectedSubParty, "selectedSubParty---");
+        const fetchModalData = async () => {
+          setModalListLoading(true);
+          try {
+            const response = await axios.get(
+              `${BASE_URL}/party/get-models/${selectedSubParty}`
+            );
+            setModalList(response.data.data);
+          } catch (error) {
+            console.log(error);
+          } finally {
+            setModalListLoading(false);
+          }
+        };
+
+        fetchModalData();
+      }
+    } else {
+      setModalList([]);
+      setSelectedModal("");
+    }
+  }, [selectedParty, selectedSubParty]);
+
+  useEffect(() => {
+    if (selectedParty !== "") {
+      if (selectedSubParty !== "") {
+        console.log(selectedModal, "selectedModal-0");
+        const findModal = modalList.find((item) => item._id === selectedModal);
+        console.log(findModal, modalList, selectedModal, "findModal");
+        setSelectedModalDetail(findModal);
+      } else {
+        setSelectedModalDetail({});
+      }
+    }
+  }, [selectedModal]);
 
   return (
     <>
@@ -40,10 +183,7 @@ function AddItem() {
         <div className="m-3">
           <h4>Add New Item</h4>
           <div className="mx-3   addItemSection p-4 p-md-3 p-sm-0">
-            <Card
-              className="mb-4 p-2 p-sm-0"
-              style={{ borderRadius: "10px" }}
-            >
+            <Card className="mb-4 p-2 p-sm-0" style={{ borderRadius: "10px" }}>
               <Card.Body>
                 <Card.Title>Party Information</Card.Title>
                 <Form>
@@ -51,31 +191,32 @@ function AddItem() {
                     <Form.Group
                       as={Col}
                       xs={12}
-                      md={partyName ? 4 : 12}
+                      md={selectedParty ? 4 : 12}
                       controlId="formPartyName"
                     >
                       <Form.Label>Party Name</Form.Label>
                       <Form.Control
                         as="select"
                         onChange={handlePartyNameChange}
+                        value={selectedParty}
+                        disabled={partyListLoading}
                       >
-                        <option value="">Select Party</option>
-                        <option value="Saathi UIUX Design Company 1">
-                          Saathi UIUX Design Company 1
-                        </option>
-                        <option value="Saathi UIUX Design Company 2">
-                          Saathi UIUX Design Company 2
-                        </option>
-                        <option value="Saathi UIUX Design Company 3">
-                          Saathi UIUX Design Company 3
-                        </option>
-                        <option value="Saathi UIUX Design Company 4">
-                          Saathi UIUX Design Company 4
-                        </option>
+                        {partyList && partyList.length > 0 ? (
+                          <>
+                            <option value="">Select Party</option>
+                            {partyList.map((item) => (
+                              <option key={item._id} value={item._id}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </>
+                        ) : (
+                          <option value="">No parties found</option>
+                        )}
                       </Form.Control>
                     </Form.Group>
 
-                    {partyName && (
+                    {selectedParty && (
                       <>
                         <Form.Group
                           as={Col}
@@ -85,24 +226,26 @@ function AddItem() {
                         >
                           <Form.Label>Sub-Party</Form.Label>
                           <Form.Control
-                        as="select"
-                        onChange={handlePartyNameChange}
-                        disabled
-                      >
-                        <option value=""> Saathi UIUX Design Company 1</option>
-                        <option value="Saathi UIUX Design Company 1">
-                          Saathi UIUX Design Company 1
-                        </option>
-                        <option value="Saathi UIUX Design Company 2">
-                          Saathi UIUX Design Company 2
-                        </option>
-                        <option value="Saathi UIUX Design Company 3">
-                          Saathi UIUX Design Company 3
-                        </option>
-                        <option value="Saathi UIUX Design Company 4">
-                          Saathi UIUX Design Company 4
-                        </option>
-                      </Form.Control>
+                            as="select"
+                            onChange={handleSubPartyNameChange}
+                            value={selectedSubParty}
+                            disabled={
+                              subPartyListLoading || selectedParty === ""
+                            }
+                          >
+                            {subPartyList && subPartyList.length > 0 ? (
+                              <>
+                                <option value="">Select Sub-Party</option>
+                                {subPartyList.map((item) => (
+                                  <option key={item?._id} value={item?._id}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </>
+                            ) : (
+                              <option value="">No sub-parties found</option>
+                            )}
+                          </Form.Control>
                         </Form.Group>
 
                         <Form.Group
@@ -114,15 +257,15 @@ function AddItem() {
                           <Form.Label>City</Form.Label>
                           <Form.Control
                             type="text"
-                            placeholder="Ahmedabad"
                             disabled
+                            value={selectedPartyDetail.city}
                           />
                         </Form.Group>
                       </>
                     )}
                   </Row>
 
-                  {partyName && (
+                  {selectedParty && (
                     <>
                       <Row className="mb-3">
                         <Form.Group
@@ -132,7 +275,15 @@ function AddItem() {
                           controlId="formCreditDays"
                         >
                           <Form.Label>Credit Days</Form.Label>
-                          <Form.Control type="text" placeholder="15" disabled />
+                          <Form.Control
+                            type="text"
+                            value={
+                              selectedPartyDetail.creditDays
+                                ? selectedPartyDetail.creditDays
+                                : 0
+                            }
+                            disabled
+                          />
                         </Form.Group>
 
                         <Form.Group
@@ -144,7 +295,11 @@ function AddItem() {
                           <Form.Label>Credit Limit</Form.Label>
                           <Form.Control
                             type="text"
-                            placeholder="15,000"
+                            value={
+                              selectedPartyDetail.creditLimit
+                                ? selectedPartyDetail.creditLimit
+                                : 0
+                            }
                             disabled
                           />
                         </Form.Group>
@@ -186,7 +341,15 @@ function AddItem() {
                           controlId="formTotalOverdue"
                         >
                           <Form.Label>Total Overdue</Form.Label>
-                          <Form.Control type="text" placeholder="16" disabled />
+                          <Form.Control
+                            type="text"
+                            value={
+                              selectedPartyDetail.totalOverdue
+                                ? selectedPartyDetail.totalOverdue
+                                : 0
+                            }
+                            disabled
+                          />
                         </Form.Group>
 
                         <Form.Group
@@ -208,7 +371,7 @@ function AddItem() {
                 </Form>
               </Card.Body>
             </Card>
-            {partyName && (
+            {selectedParty && (
               <Card
                 className="mb-3 p-2 p-sm-0"
                 style={{ borderRadius: "10px" }}
@@ -216,44 +379,44 @@ function AddItem() {
                 <Card.Body>
                   <Card.Title>Model Information</Card.Title>
 
-                  <Card>
-                  <Card.Title className="p-3">Your Models</Card.Title>
-                  <Card.Body>
-
-                  <DataTableComponent />
-                  </Card.Body>
-                  </Card>
+                  {/* <Card>
+                    <Card.Title className="p-3">Your Models</Card.Title>
+                    <Card.Body>
+                      <DataTableComponent />
+                    </Card.Body>
+                  </Card> */}
 
                   <Form>
                     <Row className="mb-3">
                       <Form.Group
                         as={Col}
                         xs={12}
-                        md={modelName ? 6 : 12}
+                        md={selectedModal ? 6 : 12}
                         controlId="formModelName"
                       >
                         <Form.Label>Model Name</Form.Label>
                         <Form.Control
                           as="select"
                           onChange={handleModelNameChange}
+                          value={selectedModal}
+                          disabled={modalListLoading || selectedParty === ""}
                         >
-                          <option value="">Select Model</option>
-                          <option value="Saathi UIUX Design Company 1">
-                            Saathi UIUX Design Company 1
-                          </option>
-                          <option value="Saathi UIUX Design Company 2">
-                            Saathi UIUX Design Company 2
-                          </option>
-                          <option value="Saathi UIUX Design Company 3">
-                            Saathi UIUX Design Company 3
-                          </option>
-                          <option value="Saathi UIUX Design Company 4">
-                            Saathi UIUX Design Company 4
-                          </option>
+                          {modalList && modalList.length > 0 ? (
+                            <>
+                              <option value="">Select Model</option>
+                              {modalList.map((item) => (
+                                <option key={item?._id} value={item?._id}>
+                                  {item.name}
+                                </option>
+                              ))}
+                            </>
+                          ) : (
+                            <option value="">No models found</option>
+                          )}
                         </Form.Control>
                       </Form.Group>
 
-                      {modelName && (
+                      {selectedModal !== "" && (
                         <>
                           <Form.Group
                             as={Col}
@@ -264,7 +427,11 @@ function AddItem() {
                             <Form.Label>List Price (₹)</Form.Label>
                             <Form.Control
                               type="text"
-                              placeholder="10,100"
+                              value={
+                                selectedModalDetail?.listPrice
+                                  ? selectedModalDetail?.listPrice
+                                  : 0
+                              }
                               disabled
                             />
                           </Form.Group>
@@ -272,7 +439,7 @@ function AddItem() {
                       )}
                     </Row>
 
-                    {modelName && (
+                    {selectedModal && (
                       <>
                         <Row className="mb-3">
                           <Form.Group
@@ -312,8 +479,9 @@ function AddItem() {
                             <Form.Label>Request Price (₹)</Form.Label>
                             <Form.Control
                               type="text"
-                              placeholder="15,000"
-                              readOnly
+                              onChange={handleChange}
+                              name="requestPrice"
+                              value={modalInfoData.requestPrice}
                             />
                           </Form.Group>
                         </Row>
@@ -328,8 +496,9 @@ function AddItem() {
                             <Form.Label>Request Discount (₹)</Form.Label>
                             <Form.Control
                               type="text"
-                              placeholder="20,200"
-                              readOnly
+                              onChange={handleChange}
+                              name="requestDiscount"
+                              value={modalInfoData.requestDiscount}
                             />
                           </Form.Group>
 
@@ -342,8 +511,9 @@ function AddItem() {
                             <Form.Label>Quantity</Form.Label>
                             <Form.Control
                               type="text"
-                              placeholder="20,200"
-                              readOnly
+                              onChange={handleChange}
+                              name="quantity"
+                              value={modalInfoData.quantity}
                             />
                           </Form.Group>
 
@@ -363,7 +533,7 @@ function AddItem() {
                         </Row>
                       </>
                     )}
-                    {modelName && (
+                    {selectedModal && (
                       <>
                         <Row className="mb-3">
                           <Form.Group as={Col} xs={12} controlId="formReasons">
@@ -383,17 +553,20 @@ function AddItem() {
                               className="btn-wrapper"
                               style={{ display: "inline-block" }}
                             >
-                              <button className="btn btn-outline-primary addBtn" onClick={(e) =>{
-                                e.preventDefault();
-                                setCheckSalesModal(true)
-                              }}>
+                              <button
+                                className="btn btn-outline-primary addBtn"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setCheckSalesModal(true);
+                                }}
+                              >
                                 Check Sales
                               </button>
                             </div>
                           </Col>
                         </Row>
 
-                        <hr />
+                        {/* <hr /> */}
 
                         <Row>
                           <Col className="d-flex justify-content-end" xs={12}>
@@ -401,8 +574,15 @@ function AddItem() {
                               className="btn-wrapper"
                               style={{ display: "inline-block" }}
                             >
-                              <button className="btn btn-primary addBtn">
-                                Confirm Modal
+                              <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={modalInfoLoading}
+                                className="btn btn-primary addBtn"
+                              >
+                                {modalInfoLoading
+                                  ? "Processsing..."
+                                  : "Confirm Modal"}
                               </button>
                             </div>
                           </Col>
@@ -413,74 +593,92 @@ function AddItem() {
                 </Card.Body>
               </Card>
             )}
-{  modelName && 
-<Row className="mt-1 gap-2 mb-5">
-  <Col>
-  <Card className="p-3">
-      <Row className="my-4">
-        <Col className="d-flex justify-content-between align-items-center ">
-          <h5>Pricing Coordinator</h5>
-          <div
-                              className="btn-wrapper"
-                              style={{ display: "inline-block" }}
-                            >
-          <button  className="btn btnSelect" onClick={(e) =>{
-            e.preventDefault();
-            setSelectUserModal(true)
-          }}>Select Users</button></div>
-        </Col>
-      </Row>
-      <Row className="">
-        {users.map(user => (
-          <Col key={user.id} xs={12} md={6} lg={6}>
-            <UserCard 
-              name={user.name}
-              email={user.email}
-              onRemove={() => handleRemove(user.id)}
-            />
-          </Col>
-        ))}
-      </Row>
-      </Card></Col>
-      <Col>
-<Card className="p-3">
-      <Row className="my-4">
-        <Col className="d-flex justify-content-between align-items-center ">
-          <h5>Pricing Coordinator</h5>
-          <div
-                              className="btn-wrapper"
-                              style={{ display: "inline-block" }}
-                            >
-          <button  className="btn btnSelect" onClick={(e) =>{
-            e.preventDefault();
-            setSelectUserModal(true)
-          }}>Select Users</button></div>
-        </Col>
-      </Row>
-      <Row className="">
-        {users.map(user => (
-          <Col key={user.id} xs={12} md={6} lg={6}>
-            <UserCard 
-              name={user.name}
-              email={user.email}
-              onRemove={() => handleRemove(user.id)}
-            />
-          </Col>
-        ))}
-      </Row>
-      </Card></Col>
-</Row>
-}
-
+            {selectedModal && (
+              <Row className="mt-1 gap-2 mb-5">
+                <Col>
+                  <Card className="p-3">
+                    <Row className="my-4">
+                      <Col className="d-flex justify-content-between align-items-center ">
+                        <h5>Pricing Coordinator</h5>
+                        <div
+                          className="btn-wrapper"
+                          style={{ display: "inline-block" }}
+                        >
+                          <button
+                            className="btn btnSelect"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setSelectUserModal(true);
+                            }}
+                          >
+                            Select Users
+                          </button>
+                        </div>
+                      </Col>
+                    </Row>
+                    <Row className="">
+                      {users.map((user) => (
+                        <Col key={user.id} xs={12} md={6} lg={6}>
+                          <UserCard
+                            name={user.name}
+                            email={user.email}
+                            onRemove={() => handleRemove(user.id)}
+                          />
+                        </Col>
+                      ))}
+                    </Row>
+                  </Card>
+                </Col>
+                <Col>
+                  <Card className="p-3">
+                    <Row className="my-4">
+                      <Col className="d-flex justify-content-between align-items-center ">
+                        <h5>Pricing Coordinator</h5>
+                        <div
+                          className="btn-wrapper"
+                          style={{ display: "inline-block" }}
+                        >
+                          <button
+                            className="btn btnSelect"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setSelectUserModal(true);
+                            }}
+                          >
+                            Select Users
+                          </button>
+                        </div>
+                      </Col>
+                    </Row>
+                    <Row className="">
+                      {users.map((user) => (
+                        <Col key={user.id} xs={12} md={6} lg={6}>
+                          <UserCard
+                            name={user.name}
+                            email={user.email}
+                            onRemove={() => handleRemove(user.id)}
+                          />
+                        </Col>
+                      ))}
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
+            )}
           </div>
         </div>
-
       </Layout>
-      <CheckSalesModal show={checkSalesModal} onHide={() => setCheckSalesModal(false)}/>
+      <CheckSalesModal
+        show={checkSalesModal}
+        onHide={() => setCheckSalesModal(false)}
+      />
 
-      <SelectUserModal show={selectUserModal} onHide={() =>{
-        setSelectUserModal(false)
-      }} />
+      <SelectUserModal
+        show={selectUserModal}
+        onHide={() => {
+          setSelectUserModal(false);
+        }}
+      />
     </>
   );
 }
