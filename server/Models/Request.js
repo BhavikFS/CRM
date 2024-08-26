@@ -7,8 +7,9 @@ const requestSchema = new mongoose.Schema({
   modelInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ModelInfo' }],
   pricingUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   financeUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  status: {type: String, required: true}
-});
+  status: {type: String, required: true},
+  generatedBy : { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
 
 const Request = mongoose.model('Request', requestSchema);
 module.exports = Request;
