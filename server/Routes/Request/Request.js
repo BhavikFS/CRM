@@ -90,14 +90,17 @@ router.post("/request-generate",authenticateToken,async (req, res) => {
 
     // Validate Pricing Users
     const pricingUsersExist = await User.find({ _id: { $in: pricingUsers },role:"PC" });
-    if (pricingUsersExist.length !== pricingUsers.length) {
-      return res.status(400).json({ error: 'One or more Pricing User IDs are invalid' });
+    console.log(pricingUsersExist[0].id, pricingUsers, '0000')
+    // Check user's id instead of length
+    if (!pricingUsersExist) {
+      return res.status(400).json({ error: 'Invalid pricing user selected. Please select another user' });
     }
 
     // Validate Finance Users
     const financeUsersExist = await User.find({ _id: { $in: financeUsers },role:"CO" });
-    if (financeUsersExist.length !== financeUsers.length) {
-      return res.status(400).json({ error: 'One or more Finance User IDs are invalid' });
+    // Check user's id instead of length
+    if (!financeUsersExist) {
+      return res.status(400).json({ error: 'Invalid finance user selected. Please select another user' });
     }
 
     // Validate Status
