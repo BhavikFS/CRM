@@ -389,13 +389,13 @@ function AddItem() {
       setErrorMessage("");
       setSuccessMessage("");
   
-      if (!pricingUser.length) {
+      if (!pricingUser._id) {
         setErrorMessage("Please select at least one Pricing Coordinator.");
         setModalInfoLoading(false);
         return;
       }
   
-      if (!complianceUser.length) {
+      if (!complianceUser._id) {
         setErrorMessage("Please select at least one Compliance Officer.");
         setModalInfoLoading(false);
         return;
@@ -405,10 +405,9 @@ function AddItem() {
         party: selectedParty,
         subParty: selectedSubParty,
         modelInfo: ModalInfoList.map((item) => item._id),
-        pricingUsers: pricingUser.map((user) => user._id),
-        financeUsers: complianceUser.map((user) => user._id),
+        pricingUsers: pricingUser._id,
+        financeUsers: complianceUser._id,
         status: "Pending", // Default status, adjust as necessary
-        generatedBy: "currentUserId", // Replace with the actual logged-in user's ID
       };
   
       try {
@@ -1033,25 +1032,25 @@ function AddItem() {
                     </Row>
                     <Row className="">
 
-                      {pricingUser?.length <= 0 && <div className="text-center">No User Selected</div>}
-                      {pricingUser && pricingUser.map((user) => (
-                        <Col key={user.id} xs={12} md={6} lg={6}>
+                      {!pricingUser?._id && <div className="text-center">No User Selected</div>}
+                      {pricingUser?._id && 
+                        <Col key={pricingUser.id} xs={12} md={6} lg={6}>
                          <Card className="d-flex flex-row align-items-center mb-3">
                   <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%', marginLeft: "5px" }} />
                   <Card.Body className="d-flex flex-column align-items-start">
-                    <span className="mb-0 nameUser">{user?.username}</span>
-                    <span className="mb-0 nameUserSub">{user?.email}</span>
+                    <span className="mb-0 nameUser">{pricingUser?.username}</span>
+                    <span className="mb-0 nameUserSub">{pricingUser?.email}</span>
                   </Card.Body>
                   <button
                     className={'closebtn'}
                     onClick={() => {
-                      setPricingUser(pricingUser.filter((u) => u._id !== user._id));
+                      setPricingUser(null);
                     }}                  >
                     <i className={'fa fa-xmark'} ></i>
                   </button>
                 </Card>
                         </Col>
-                      ))}
+                      }
                     </Row>
                   </Card>
                 </Col>
@@ -1078,27 +1077,27 @@ function AddItem() {
                       </Col>
                     </Row>
                     <Row className="">
-                    {complianceUser?.length <= 0 && <div className="text-center">No User Selected</div>}
+                    {!complianceUser?._id && <div className="text-center">No User Selected</div>}
 
-                    {complianceUser && complianceUser.map((user) => (
-                        <Col key={user.id} xs={12} md={6} lg={6}>
+                    {complianceUser?._id && 
+                        <Col key={complianceUser.id} xs={12} md={6} lg={6}>
                          <Card className="d-flex flex-row align-items-center mb-3">
                   <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%', marginLeft: "5px" }} />
                   <Card.Body className="d-flex flex-column align-items-start">
-                    <span className="mb-0 nameUser">{user?.username}</span>
-                    <span className="mb-0 nameUserSub">{user?.email}</span>
+                    <span className="mb-0 nameUser">{complianceUser?.username}</span>
+                    <span className="mb-0 nameUserSub">{complianceUser?.email}</span>
                   </Card.Body>
                   <button
                     className={'closebtn'}
                     onClick={() => {
-                      setComplianceUser(complianceUser.filter((u) => u._id !== user._id));
+                      setComplianceUser(null);
                     }}
                   >
                     <i className={'fa fa-xmark'} ></i>
                   </button>
                 </Card>
                         </Col>
-                      ))}
+                      }
                     </Row>
                   </Card>
                 </Col>

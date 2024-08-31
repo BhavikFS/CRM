@@ -23,7 +23,11 @@ function App() {
           <Route path="/history" element={<ProtectedRoutes element={<History />} />} />
           <Route path="/stage" element={<ProtectedRoutes element={<Stage3 />} />} />
           <Route path="/stage4" element={<ProtectedRoutes element={<Stage4 />} />} />
-          <Route path="/pricingCO" element={<ProtectedRoutes element={<PricingCo />} />} />
+          <Route path="/pending" element={<ProtectedRoutes element={<PricingCo status="pending"/>} />} />
+          <Route path="/approved" element={<ProtectedRoutes element={<PricingCo status="approved"/>} />} />
+          <Route path="/rejected" element={<ProtectedRoutes element={<PricingCo status="rejected" />} />} />
+          <Route path="/ReviewRequired" element={<ProtectedRoutes element={<PricingCo status="ReviewRequired" />} />} />
+
           <Route path="/partyData" element={<ProtectedRoutes element={<PartyData />} />} />
           <Route path="/grpData" element={<ProtectedRoutes element={<GroupData />} />} />
 

@@ -36,32 +36,33 @@ function SelectUserModal({ show, onHide, role, pricingUser, complianceUser, setC
 
   const handleSelectUser = (user) => {
     if (role === "PC") {
-      if (pricingUser?.some((u) => u._id === user._id)) {
+      if (pricingUser?._id === user._id) {
         // Deselect user if already selected
-        setPricingUser(pricingUser.filter((u) => u._id !== user._id));
+        setPricingUser(null);
       } else {
-        // Select the user
-        setPricingUser([...pricingUser, user]);
+        // Select the user (replacing the previous selection)
+        setPricingUser(user);
       }
     } else if (role === "CO") {
-      if (complianceUser?.some((u) => u._id === user._id)) {
+      if (complianceUser?._id === user._id) {
         // Deselect user if already selected
-        setComplianceUser(complianceUser.filter((u) => u._id !== user._id));
+        setComplianceUser(null);
       } else {
-        // Select the user
-        setComplianceUser([...complianceUser, user]);
+        // Select the user (replacing the previous selection)
+        setComplianceUser(user);
       }
     }
   };
-
+  
   const isSelected = (user) => {
     if (role === "PC") {
-      return pricingUser.some((u) => u._id === user._id);
+      return pricingUser?._id === user._id;
     } else if (role === "CO") {
-      return complianceUser.some((u) => u._id === user._id);
+      return complianceUser?._id === user._id;
     }
     return false;
   };
+  
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -128,7 +129,8 @@ function SelectUserModal({ show, onHide, role, pricingUser, complianceUser, setC
           </nav>
         </div>
         <div className="btn-wrapper" style={{ display: "inline-block" }}>
-          <button className="btn btn-primary addBtn" onClick={onHide}>Confirm ( {role === "PC" ? pricingUser.length : complianceUser.length})</button>
+          <button className="btn btn-primary addBtn" onClick={onHide}>            Confirm ( {role === "PC" ? (pricingUser ? 1 : 0) : (complianceUser ? 1 : 0)} )
+</button>
         </div>
       </Modal.Footer>
     </Modal>
