@@ -62,7 +62,13 @@ function Login() {
             token:response.data.token,
           })
         );
-        navigate("/")
+        if(response.data.user.role === 'CO' || response.data.user.role === 'PC')
+        {
+          navigate("/pending")
+        }
+        else{
+          navigate("/")
+        }
       } else {
         setApiError("Login failed. Please check your credentials and try again.");
       }

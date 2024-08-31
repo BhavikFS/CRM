@@ -1,10 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Card, Badge, Form } from "react-bootstrap";
 import "../../../assets/css/stage.css";
 import Layout from "../../Layout/Layout";
 import "../../../assets/css/pricingCO.css";
+import { get , getAuthConfig} from "../../../libs/http-hydrate";
 
-const PricingCo = () => {
+const PricingCo = ({ status }) => {
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await get('/api/request/pc/requests-list', {
+          params: {
+            status:status,
+            search,
+          },
+          ...getAuthConfig(),
+        });
+
+        setCustomers(response.data.requests);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [search,status
+  ]);
+
   return (
     <Layout>
             <div className="p-2 p-md-5 p-sm-3">
@@ -25,11 +56,18 @@ const PricingCo = () => {
             </div>
           </div>
         </div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p className="text-danger">Error: {error}</p>
+        ) : (
       <div className="credit-card-container  pricingCO">
-        <Card className="credit-card">
+{customers?.length <=0 && <div className="text-center"> No Records Found</div>}
+{ customers?.length > 0 && customers.map(customer => (
+        <Card className="credit-card mb-4">
           <div className="credit-card-header">
-            <h5>Saathi UIUX Design Company ( Sub-Party )</h5> &nbsp;| &nbsp;
-            <p>Designer</p>
+            <h5>{customer?.party?.name} ( {customer?.subParty?.name} )</h5> &nbsp;| &nbsp;
+            <p>{customer?.party?.name} </p>
           </div>
           <div className="credit-card-body row">
             <div className="col-md-12 col-lg-6 col-sm-12">
@@ -141,8 +179,9 @@ const PricingCo = () => {
               <button className="w-100 btn btn-secondary">✕</button>
             </div></div>
           </div>
-        </Card>
-      </div>
+        </Card> 
+))}
+      </div>)}
       </div>
     </Layout>
   );

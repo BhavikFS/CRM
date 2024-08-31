@@ -3,93 +3,61 @@ import DataTableComponent from "../pages/DataTableComponent";
 import Layout from "./Layout";
 import { Dropdown, Form } from "react-bootstrap";
 import { DataTable } from "primereact/datatable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Column } from "primereact/column";
+import { get } from "../../libs/http-hydrate";
+import { getAuthConfig } from "../../libs/http-hydrate";
+import moment from 'moment';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      name: "James Butt",
-      date: "20/04/2024",
-      subParty: "Name",
-      listPrice: "$10,000",
-      discount: "20%",
-      netPrice: "$10,000",
-      reqPrice: "$10,000",
-      reqDiscount: "$10,000",
-      qty: "10kg",
-      reasons: "4",
-      stockQTY: "10",
-      status: "rejected",
-      action: "true",
-    },
-    {
-      id: 2,
-      name: "James Butt",
-      date: "20/04/2024",
-      subParty: "Name",
-      listPrice: "$10,000",
-      discount: "20%",
-      netPrice: "$10,000",
-      reqPrice: "$10,000",
-      reqDiscount: "$10,000",
-      qty: "10kg",
-      reasons: "4",
-      stockQTY: "10",
-      status: "approved",
-      action: "true",
-    },
-    {
-      id: 3,
-      name: "James Butt",
-      date: "20/04/2024",
-      subParty: "Name",
-      listPrice: "$10,000",
-      discount: "20%",
-      netPrice: "$10,000",
-      reqPrice: "$10,000",
-      reqDiscount: "$10,000",
-      qty: "10kg",
-      reasons: "4",
-      stockQTY: "10",
-      status: "approved",
-      action: "true",
-    },
-    {
-      id: 4,
-      name: "James Butt",
-      date: "20/04/2024",
-      subParty: "Name",
-      listPrice: "$10,000",
-      discount: "20%",
-      netPrice: "$10,000",
-      reqPrice: "$10,000",
-      reqDiscount: "$10,000",
-      qty: "10kg",
-      reasons: "4",
-      stockQTY: "10",
-      status: "pending",
-      action: "true",
-    },  {
-      id: 5,
-      name: "James Butt",
-      date: "20/04/2024",
-      subParty: "Name",
-      listPrice: "$10,000",
-      discount: "20%",
-      netPrice: "$10,000",
-      reqPrice: "$10,000",
-      reqDiscount: "$10,000",
-      qty: "10kg",
-      reasons: "4",
-      stockQTY: "10",
-      status: "revision",
-      action: "true",
-    },
-    // ... other data
-  ]);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortBy, setSortBy] = useState("newest");
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await get('/api/request/requests-list', {
+          params: {
+            page,
+            limit,
+            sortBy,
+            search,
+          },
+          ...getAuthConfig(),
+        });
+
+        setCustomers(response.data.requests);
+        setTotalPages(response.data.totalPages);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [page, limit, sortBy, search]);
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
+
+  const handleLimitChange = (e) => {
+    setLimit(e.target.value);
+  };
   const statusBodyTemplate = (rowData) => {
     return rowData.status === "approved" ? (
       <div
@@ -126,7 +94,7 @@ const Dashboard = () => {
         ></span>
         Revision required
       </div>
-    ): rowData.status === "pending" ? (
+    ): rowData.status === "Pending" ? (
       <div
         className="alert alert-warning d-flex align-items-center"
         role="alert"
@@ -163,6 +131,8 @@ const Dashboard = () => {
       </div>
     );
   };
+
+
 
   const actionBodyTemplate = (rowData) => {
     return (
@@ -219,6 +189,8 @@ rowData?.status === 'pending' ?
                 className="form-control form-input"
                 style={{ fontSize: "0.75rem", height: "40px" }}
                 placeholder="Search by Name .... "
+                value={search}
+                onChange={handleSearchChange}
               />
             </div>
           </div>
@@ -230,9 +202,11 @@ rowData?.status === 'pending' ?
             <Form.Control
               as="select"
               style={{ fontSize: "0.75rem", height: "40px" }}
+              value={sortBy}
+              onChange={handleSortChange}
             >
-              <option value=""> ↑ Newest </option>
-              <option value=""> ↓ Oldest </option>
+              <option value="newest">↑ Newest</option>
+              <option value="oldest">↓ Oldest</option>
             </Form.Control>
           </div>
           <div className="col-lg-2 d-flex align-items-center border-left-lg">
@@ -262,135 +236,82 @@ rowData?.status === 'pending' ?
         </div>
 
 
-        <div className="card">
-          <DataTable
-            value={customers}
-          
-            tableStyle={{ minWidth: "50rem" }}
-            paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink "
-          >
-            <Column field="id" header="" style={{ width: "20%" }}></Column>
-            <Column
-              field="name"
-              header="Name"
-              style={{ width: "20%" }}
-            ></Column>
-            <Column
-              field="date"
-              header="Date"
-              style={{ width: "20%" }}
-            ></Column>
-            <Column
-              field="subParty"
-              header="Sub Party"
-              style={{ width: "20%" }}
-            ></Column>
-            <Column
-              field="listPrice"
-              header="List Price"
-              style={{ width: "20%" }}
-            ></Column>
-            <Column
-              field="discount"
-              header="Discount"
-              style={{ width: "10%" }}
-            ></Column>
-            <Column
-              field="netPrice"
-              header="Net Price"
-              style={{ width: "25%" }}
-            ></Column>
-            <Column
-              field="reqPrice"
-              header="Req Price"
-              style={{ width: "25%" }}
-            ></Column>
-            <Column
-              field="reqDiscount"
-              header="Req Discount"
-              style={{ width: "25%" }}
-            ></Column>
-            <Column field="qty" header="Qty" style={{ width: "25%" }}></Column>
-            <Column
-              field="reasons"
-              header="Reasons"
-              style={{ width: "25%" }}
-            ></Column>
-            <Column
-              field="stockQTY"
-              header="Stock QTY"
-              style={{ width: "25%" }}
-            ></Column>
-            <Column
-              field="status"
-              header="Status"
-              body={statusBodyTemplate}
-              style={{ width: "25%" }}
-            ></Column>
-            <Column
-              field="action"
-              header=""
-              body={actionBodyTemplate}
-              style={{ width: "25%" }}
-            ></Column>
-          </DataTable>
-          
-        </div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p className="text-danger">Error: {error}</p>
+        ) : (
+          <div className="card">
+            <DataTable
+              value={customers}
+              rows={limit}
+              totalRecords={totalPages * limit}
+              
+              tableStyle={{ minWidth: "50rem" }}
+            >
+              <Column field="id" header="ID" style={{ width: "10%" }} body={(rowData, { rowIndex }) => {
+  return (page - 1) * limit + rowIndex + 1
+}}></Column>
+              <Column field="name" header="Name" style={{ width: "15%" }}  body={(rowData) => rowData?.generatedBy?.username}></Column>
+              <Column
+  field="date"
+  header="Date"
+  style={{ width: "15%" }}
+  body={(rowData) => moment(rowData?.createdAt).format('DD - MM - YYYY')}
+/>
+              <Column field="subParty" header="Sub Party" style={{ width: "15%" }}  body={(rowData) => rowData?.subParty?.name}></Column>
+              <Column field="listPrice" header="List Price" style={{ width: "10%" }}  body={(rowData) => rowData?.subParty?.name}></Column>
+              <Column field="status" header="Status" body={statusBodyTemplate} style={{ width: "15%" }}></Column>
+              <Column field="action" header="Action" body={actionBodyTemplate} style={{ width: "20%" }}></Column>
+            </DataTable>
+          </div>
+        )}
 
-        <div className="row">
+<div className="row">
   <div className="col-md-12 col-lg-6 col-sm-12">
-<div className="footerPagination">
-    Show :&nbsp; | &nbsp;
+    <div className="footerPagination">
+      Show :&nbsp; | &nbsp;
 
-    <Dropdown>
-                  <Dropdown.Toggle id="dropdown-profile" className="btn-custom">
-                  <span className="font-weight-bold">1-10</span>     
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                    >
-                      10-20
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                    >
-                     20-30
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                    >
-                     30-40
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+      <Dropdown>
+        <Dropdown.Toggle id="dropdown-profile" className="btn-custom">
+          <span className="font-weight-bold">1-{limit}</span>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Dropdown.Item onClick={() => setLimit(10)}>1-10</Dropdown.Item>
+          <Dropdown.Item onClick={() => setLimit(20)}>1-20</Dropdown.Item>
+          <Dropdown.Item onClick={() => setLimit(30)}>1-30</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
 
-
-                &nbsp; | &nbsp; per pages &nbsp;| &nbsp; 1-25 of 1000
-                </div>
+      &nbsp; | &nbsp; per pages &nbsp;| &nbsp; {(page - 1) * limit + 1}-{Math.min(page * limit, totalPages * limit)} of {totalPages * limit}
+    </div>
   </div>
-        <div className="col-md-12 col-lg-6 col-sm-12 d-flex justify-content-end">
-              <nav data-pagination>
-                <a disabled>prev</a>
-                <ul>
-                  <li class="current">
-                    <a>1</a>
-                  </li>
-                  <li>
-                    <a>2</a>{" "}
-                  </li>
-                  <li>
-                    <a>3</a>
-                  </li>
-                  <li>
-                    <a>…</a>
-                  </li>
-                  <li>
-                    <a>10</a>
-                  </li>
-                </ul>
-                <a>next</a>
-              </nav>
-            </div>
 
-            </div>
+  <div className="col-md-12 col-lg-6 col-sm-12 d-flex justify-content-end">
+    <nav data-pagination>
+      <a
+        disabled={page === 1}
+        onClick={() => setPage(page - 1)}
+      >
+        prev
+      </a>
+      <ul className="pagination">
+        {[...Array(totalPages)].map((_, i) => (
+          <li key={i} className={`${i + 1 === page ? 'current' : ''}`} onClick={() => setPage(i + 1)}>
+              {i + 1}
+          </li>
+        ))}
+      </ul>
+      <a
+        disabled={page === totalPages}
+        onClick={() => setPage(page + 1)}
+      >
+        next
+      </a>
+    </nav>
+  </div>
+</div>
+
         </div>
     </Layout>
   );
