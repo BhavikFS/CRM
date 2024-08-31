@@ -1,14 +1,26 @@
-// models/Company.js
 const mongoose = require('mongoose');
+
+const approvalSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, enum: ['pending','approved', 'rejected', 'ReviewRequired'], required: true },
+  comments: { type: String }
+}, { timestamps: true });
+const managerSchema = mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, enum: ['pending','approved', 'rejected'], required: true },
+  comments: { type: String }
+}, { timestamps: true })
 
 const requestSchema = new mongoose.Schema({
   party: { type: mongoose.Schema.Types.ObjectId, ref: 'Party' },
-  subParty: { type: mongoose.Schema.Types.ObjectId, ref: 'Sub Party' },
-  modelInfo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ModelInfo' }],
-  pricingUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  financeUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  status: {type: String, required: true},
-  generatedBy : { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  subParty: { type: mongoose.Schema.Types.ObjectId, ref: 'SubParty' },
+  modelInfo: { type: mongoose.Schema.Types.ObjectId, ref: 'ModelInfo' },
+  pricingUsers: approvalSchema, // Array to manage multiple pricing users
+  financeUsers:approvalSchema, // Array to manage multiple finance users
+  status: { type: String, required: true },
+  generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  manager: managerSchema,
+  managerStatus:{type: String, enum: ['approved', 'rejected']}
 }, { timestamps: true });
 
 const Request = mongoose.model('Request', requestSchema);
