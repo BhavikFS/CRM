@@ -34,6 +34,7 @@ function AddItem() {
     requestPrice: 0,
     requestDiscount: 0,
     quantity: 0,
+    reasons: []
   });
   const [modalInfoLoading, setModalInfoLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -944,9 +945,9 @@ function AddItem() {
                               <Form.Label>Reasons</Form.Label>
                               <Form.Control as="select">
                                 <option>Select Reasons</option>
-                                <option>Reason 1</option>
-                                <option>Reason 2</option>
-                                <option>Reason 3</option>
+                                <option value="reason 1">Reason 1</option>
+                                <option value="reason 2">Reason 2</option>
+                                <option value="reason 3">Reason 3</option>
                               </Form.Control>
                             </Form.Group>
                           </Row>
