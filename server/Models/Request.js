@@ -20,6 +20,7 @@ const requestSchema = new mongoose.Schema({
   status: { type: String, required: true },
   generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   manager: managerSchema,
+  requestID:{type: String, required:true},
   managerStatus:{type: String, enum: ['approved', 'rejected']}
 }, { timestamps: true });
 

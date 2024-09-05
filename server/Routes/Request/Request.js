@@ -33,6 +33,8 @@ router.post("/request-generate",authenticateToken,async (req, res) => {
   try {
     // Create a request for each modelInfo item
     const requests = [];
+    const requestID = new mongoose.Types.ObjectId(); // Using MongoDB's ObjectId as a unique identifier
+
     for (const modelInfoId of modelInfo) {
       if (!isValidObjectId(modelInfoId)) {
         return res.status(400).json({ error: 'Invalid modelInfo ID' });
@@ -45,6 +47,7 @@ router.post("/request-generate",authenticateToken,async (req, res) => {
         pricingUsers: { user: pricingUsers, status: 'pending' }, // Default status 'pending'
         financeUsers: { user: financeUsers, status: 'pending' }, // Default status 'pending'
         status,
+        requestID,
         generatedBy: req.user._id, // Assuming `req.user._id` is available from authentication middleware
       });
 
