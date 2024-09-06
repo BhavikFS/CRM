@@ -21,7 +21,8 @@ const requestSchema = new mongoose.Schema({
   generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   manager: managerSchema,
   requestID:{type: String, required:true},
-  managerStatus:{type: String, enum: ['approved', 'rejected']}
+  managerStatusCO:{type: String, enum: ['approved', 'rejected']},
+  managerStatusPC:{type: String, enum: ['approved', 'rejected']}
 }, { timestamps: true });
 
 const Request = mongoose.model('Request', requestSchema);

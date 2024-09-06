@@ -76,7 +76,7 @@ const Dashboard = () => {
         ></span>
         Completed
       </div>
-    ) : rowData.status === "revision" ? (
+    ) : rowData.status === "ReviewRequired" ? (
       <div
         className="alert alert-dark d-flex align-items-center"
         role="alert"
@@ -94,7 +94,7 @@ const Dashboard = () => {
         ></span>
         Revision required
       </div>
-    ): rowData.status === "Pending" ? (
+    ): rowData.status === "pending" ? (
       <div
         className="alert alert-warning d-flex align-items-center"
         role="alert"
@@ -252,7 +252,7 @@ rowData?.status === 'pending' ?
               <Column field="id" header="ID" style={{ width: "10%" }} body={(rowData, { rowIndex }) => {
   return (page - 1) * limit + rowIndex + 1
 }}></Column>
-              <Column field="name" header="Name" style={{ width: "15%" }}  body={(rowData) => rowData?.generatedBy?.username}></Column>
+              <Column field="name" header="Name" style={{ width: "15%" }}  body={(rowData) => rowData?.party?.name}></Column>
               <Column
   field="date"
   header="Date"

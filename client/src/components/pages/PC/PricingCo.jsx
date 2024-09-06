@@ -79,7 +79,7 @@ const PricingCo = ({ status }) => {
       <div className="p-2 p-md-5 p-sm-3">
         <div className="d-flex justify-content-between align-items-center mb-3 w-100">
           <h1 className="mb-0 w-25" style={{ textAlign: "left" }}>
-            {user?.role === 'CO' ? "Financed User" : "Pricing Coordinator"}
+            {user?.role === 'CO' ? "Finance & Accounts" : "Pricing Coordinator"}
           </h1>
           <div className="btn-wrapper w-50" style={{ display: "inline-block" }}>
             <div className="form align-items-center d-flex">

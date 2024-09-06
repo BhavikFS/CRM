@@ -1059,7 +1059,7 @@ function AddItem() {
                   <Card className="p-3">
                     <Row className="my-4">
                       <Col className="d-flex justify-content-between align-items-center ">
-                        <h5>Compliance Officer</h5>
+                        <h5>Finance & Accounts</h5>
                         <div
                           className="btn-wrapper"
                           style={{ display: "inline-block" }}

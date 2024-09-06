@@ -11,6 +11,7 @@ import Stage4 from "./components/pages/Stage/Stage4";
 import PricingCo from "./components/pages/PC/PricingCo";
 import PartyData from "./components/pages/History/PartyData";
 import GroupData from "./components/pages/History/GroupData";
+import StagePC from "./components/pages/Stage/StagePC";
 
 function App() {
   return (
@@ -21,7 +22,14 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/addItem" element={<ProtectedRoutes element={<AddItem />} />} />
           <Route path="/history" element={<ProtectedRoutes element={<History />} />} />
-          <Route path="/stage" element={<ProtectedRoutes element={<Stage3 />} />} />
+          <Route path="/Pending-stageForCO" element={<ProtectedRoutes element={<Stage3  status="pending"/>} />} />
+          <Route path="/Approved-stageForCO" element={<ProtectedRoutes element={<Stage3  status="approved"/>} />} />
+          <Route path="/Rejected-stageForCO" element={<ProtectedRoutes element={<Stage3  status="rejected"/>} />} />
+
+          <Route path="/Pending-stageForPC" element={<ProtectedRoutes element={<StagePC  status="pending"/>} />} />
+          <Route path="/Approved-stageForPC" element={<ProtectedRoutes element={<StagePC  status="approved"/>} />} />
+          <Route path="/Rejected-stageForPC" element={<ProtectedRoutes element={<StagePC  status="rejected"/>} />} />
+
           <Route path="/stage4" element={<ProtectedRoutes element={<Stage4 />} />} />
           <Route path="/pending" element={<ProtectedRoutes element={<PricingCo status="pending"/>} />} />
           <Route path="/approved" element={<ProtectedRoutes element={<PricingCo status="approved"/>} />} />
