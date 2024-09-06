@@ -16,7 +16,7 @@ import profile from "../../assets/images/Avatar.png";
 import { useNavigate } from "react-router-dom";
 
 function AddItem() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [checkSalesModal, setCheckSalesModal] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
   const [partyList, setPartyList] = useState([]);
@@ -34,7 +34,7 @@ function AddItem() {
     requestPrice: 0,
     requestDiscount: 0,
     quantity: 0,
-    reasons: []
+    reasons: [],
   });
   const [modalInfoLoading, setModalInfoLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -45,9 +45,9 @@ function AddItem() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
-  const [pricingUser , setPricingUser] = useState([]);
-  const [complianceUser , setComplianceUser ] = useState([]);
-  const [role,setRole] = useState("");
+  const [pricingUser, setPricingUser] = useState([]);
+  const [complianceUser, setComplianceUser] = useState([]);
+  const [role, setRole] = useState("");
   const handleEdit = (rowData) => {
     setEditMode(true);
     setEditItemId(rowData._id);
@@ -385,54 +385,54 @@ function AddItem() {
   const isAllSelected =
     ModalInfoList.length > 0 &&
     selectedCustomers.length === ModalInfoList.length;
-    const handleSubmitRequest = async () => {
-      setModalInfoLoading(true);
-      setErrorMessage("");
-      setSuccessMessage("");
-  
-      if (!pricingUser._id) {
-        setErrorMessage("Please select at least one Pricing Coordinator.");
-        setModalInfoLoading(false);
-        return;
-      }
-  
-      if (!complianceUser._id) {
-        setErrorMessage("Please select at least one Compliance Officer.");
-        setModalInfoLoading(false);
-        return;
-      }
-  
-      const payload = {
-        party: selectedParty,
-        subParty: selectedSubParty,
-        modelInfo: ModalInfoList.map((item) => item._id),
-        pricingUsers: pricingUser._id,
-        financeUsers: complianceUser._id,
-        status: "Pending", // Default status, adjust as necessary
-      };
-  
-      try {
-        const response = await axios.post(
-          `${BASE_URL}/request/request-generate`,
-          payload,
-          getAuthConfig()
-        );
-  
-        setSuccessMessage("Request created successfully!");
+  const handleSubmitRequest = async () => {
+    setModalInfoLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
 
-        setTimeout(() =>{
-            navigate("/")
-        },3000)
-        // Handle any additional success actions like resetting forms
-      } catch (error) {
-        console.error("Error creating request:", error);
-        setErrorMessage(
-          error.response?.data?.error || "An error occurred. Please try again."
-        );
-      } finally {
-        setModalInfoLoading(false);
-      }
+    if (!pricingUser._id) {
+      setErrorMessage("Please select at least one Pricing Coordinator.");
+      setModalInfoLoading(false);
+      return;
+    }
+
+    if (!complianceUser._id) {
+      setErrorMessage("Please select at least one Compliance Officer.");
+      setModalInfoLoading(false);
+      return;
+    }
+
+    const payload = {
+      party: selectedParty,
+      subParty: selectedSubParty,
+      modelInfo: ModalInfoList.map((item) => item._id),
+      pricingUsers: pricingUser._id,
+      financeUsers: complianceUser._id,
+      status: "Pending", // Default status, adjust as necessary
     };
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/request/request-generate`,
+        payload,
+        getAuthConfig()
+      );
+
+      setSuccessMessage("Request created successfully!");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+      // Handle any additional success actions like resetting forms
+    } catch (error) {
+      console.error("Error creating request:", error);
+      setErrorMessage(
+        error.response?.data?.error || "An error occurred. Please try again."
+      );
+    } finally {
+      setModalInfoLoading(false);
+    }
+  };
   return (
     <>
       <Layout>
@@ -569,8 +569,12 @@ function AddItem() {
                           <Form.Label>Total Debit</Form.Label>
                           <Form.Control
                             type="text"
-                            placeholder="15,000"
                             disabled
+                            value={
+                              selectedPartyDetail.totalDebit
+                                ? selectedPartyDetail.totalDebit
+                                : 0
+                            }
                           />
                         </Form.Group>
                       </Row>
@@ -580,13 +584,18 @@ function AddItem() {
                           as={Col}
                           xs={12}
                           md={4}
-                          controlId="formTotalCredit"
+                          controlId="formDiffDays"
                         >
-                          <Form.Label>Total Credit</Form.Label>
+                          <Form.Label>Diff. Days</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="20,200"
                             disabled
+                            value={
+                              selectedPartyDetail.diffDays
+                                ? selectedPartyDetail.diffDays
+                                : 0
+                            }
                           />
                         </Form.Group>
 
@@ -854,6 +863,11 @@ function AddItem() {
                                 type="text"
                                 placeholder="10%"
                                 disabled
+                                value={
+                                  selectedModalDetail?.discount
+                                    ? selectedModalDetail?.discount
+                                    : 0
+                                }
                               />
                             </Form.Group>
 
@@ -929,6 +943,11 @@ function AddItem() {
                                 type="text"
                                 placeholder="20,200"
                                 disabled
+                                value={
+                                  selectedModalDetail?.quantity
+                                    ? selectedModalDetail?.quantity
+                                    : 0
+                                }
                               />
                             </Form.Group>
                           </Row>
@@ -1022,7 +1041,7 @@ function AddItem() {
                             className="btn btnSelect"
                             onClick={(e) => {
                               e.preventDefault();
-                              setRole("PC")
+                              setRole("PC");
                               setSelectUserModal(true);
                             }}
                           >
@@ -1032,26 +1051,41 @@ function AddItem() {
                       </Col>
                     </Row>
                     <Row className="">
-
-                      {!pricingUser?._id && <div className="text-center">No User Selected</div>}
-                      {pricingUser?._id && 
+                      {!pricingUser?._id && (
+                        <div className="text-center">No User Selected</div>
+                      )}
+                      {pricingUser?._id && (
                         <Col key={pricingUser.id} xs={12} md={6} lg={6}>
-                         <Card className="d-flex flex-row align-items-center mb-3">
-                  <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%', marginLeft: "5px" }} />
-                  <Card.Body className="d-flex flex-column align-items-start">
-                    <span className="mb-0 nameUser">{pricingUser?.username}</span>
-                    <span className="mb-0 nameUserSub">{pricingUser?.email}</span>
-                  </Card.Body>
-                  <button
-                    className={'closebtn'}
-                    onClick={() => {
-                      setPricingUser(null);
-                    }}                  >
-                    <i className={'fa fa-xmark'} ></i>
-                  </button>
-                </Card>
+                          <Card className="d-flex flex-row align-items-center mb-3">
+                            <Card.Img
+                              variant="left"
+                              src={profile}
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                marginLeft: "5px",
+                              }}
+                            />
+                            <Card.Body className="d-flex flex-column align-items-start">
+                              <span className="mb-0 nameUser">
+                                {pricingUser?.username}
+                              </span>
+                              <span className="mb-0 nameUserSub">
+                                {pricingUser?.email}
+                              </span>
+                            </Card.Body>
+                            <button
+                              className={"closebtn"}
+                              onClick={() => {
+                                setPricingUser(null);
+                              }}
+                            >
+                              <i className={"fa fa-xmark"}></i>
+                            </button>
+                          </Card>
                         </Col>
-                      }
+                      )}
                     </Row>
                   </Card>
                 </Col>
@@ -1068,7 +1102,7 @@ function AddItem() {
                             className="btn btnSelect"
                             onClick={(e) => {
                               e.preventDefault();
-                              setRole("CO")
+                              setRole("CO");
                               setSelectUserModal(true);
                             }}
                           >
@@ -1078,37 +1112,55 @@ function AddItem() {
                       </Col>
                     </Row>
                     <Row className="">
-                    {!complianceUser?._id && <div className="text-center">No User Selected</div>}
+                      {!complianceUser?._id && (
+                        <div className="text-center">No User Selected</div>
+                      )}
 
-                    {complianceUser?._id && 
+                      {complianceUser?._id && (
                         <Col key={complianceUser.id} xs={12} md={6} lg={6}>
-                         <Card className="d-flex flex-row align-items-center mb-3">
-                  <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%', marginLeft: "5px" }} />
-                  <Card.Body className="d-flex flex-column align-items-start">
-                    <span className="mb-0 nameUser">{complianceUser?.username}</span>
-                    <span className="mb-0 nameUserSub">{complianceUser?.email}</span>
-                  </Card.Body>
-                  <button
-                    className={'closebtn'}
-                    onClick={() => {
-                      setComplianceUser(null);
-                    }}
-                  >
-                    <i className={'fa fa-xmark'} ></i>
-                  </button>
-                </Card>
+                          <Card className="d-flex flex-row align-items-center mb-3">
+                            <Card.Img
+                              variant="left"
+                              src={profile}
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                marginLeft: "5px",
+                              }}
+                            />
+                            <Card.Body className="d-flex flex-column align-items-start">
+                              <span className="mb-0 nameUser">
+                                {complianceUser?.username}
+                              </span>
+                              <span className="mb-0 nameUserSub">
+                                {complianceUser?.email}
+                              </span>
+                            </Card.Body>
+                            <button
+                              className={"closebtn"}
+                              onClick={() => {
+                                setComplianceUser(null);
+                              }}
+                            >
+                              <i className={"fa fa-xmark"}></i>
+                            </button>
+                          </Card>
                         </Col>
-                      }
+                      )}
                     </Row>
                   </Card>
                 </Col>
               </Row>
             )}
-              {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-            {successMessage && <div className="alert alert-success">{successMessage}</div>}
+            {errorMessage && (
+              <div className="alert alert-danger">{errorMessage}</div>
+            )}
+            {successMessage && (
+              <div className="alert alert-success">{successMessage}</div>
+            )}
 
-
-          <div className="d-flex justify-content-end mt-2">
+            <div className="d-flex justify-content-end mt-2">
               <button className="btnscndry">Cancel</button>
               <button
                 className="btnprm"
