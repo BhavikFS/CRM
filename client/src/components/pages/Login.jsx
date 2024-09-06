@@ -66,6 +66,9 @@ function Login() {
         {
           navigate("/pending")
         }
+        else if(response.data.user.role === "Manager"){
+          navigate("/Pending-stageForCO")
+        }
         else{
           navigate("/")
         }

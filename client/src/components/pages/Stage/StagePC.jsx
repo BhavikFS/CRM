@@ -11,44 +11,35 @@ import {
 import "../../../assets/css/stage.css";
 import Layout from "../../Layout/Layout";
 import { get,getAuthConfig, post } from "../../../libs/http-hydrate";
-const Stage3 = ({status}) => {
+const StagePC = ({ status }) => {
 
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [error, setError] = useState(null);
-  useEffect(() => {
-      const fetchData = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const response = await get("/api/request/CO/requests-list", {
-            params: {
-              status: status,
-              search,
-            },
-            ...getAuthConfig(),
-          });
-  
-          setCustomers(response.data.requests);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchData();
-    }, [search, status]);
-
-
-       // Function to filter out customers with duplicate requestID
-       const uniqueCustomers = customers?.reduce((acc, customer) => {
-        if (!acc.find((item) => item.requestID === customer.requestID)) {
-          acc.push(customer);
-        }
-        return acc;
-      }, []);
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [search, setSearch] = useState("");
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const fetchData = async () => {
+          setLoading(true);
+          setError(null);
+          try {
+            const response = await get("/api/request/PC/requests-list", {
+              params: {
+                status: status,
+                search,
+              },
+              ...getAuthConfig(),
+            });
+    
+            setCustomers(response.data.requests);
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchData();
+      }, [search, status]);
 
       const handleChangeStatus = async (id, newStatus, comments) => {
         try {
@@ -58,7 +49,7 @@ const Stage3 = ({status}) => {
               id,
               status: newStatus,
               comments,
-              roleToupdate:'CO'
+              roleToupdate:'PC'
             },
             getAuthConfig()
           );
@@ -73,13 +64,13 @@ const Stage3 = ({status}) => {
         }
       };
     
-
+    
   return (
     <Layout>
       <div className="p-2 p-md-5 p-sm-3 stage3">
         <div className="row mb-3">
           <h1 className="mb-0 col-md-5" style={{ textAlign: "left" }}>
-            Finance & Account ( {status} )
+            PC ( {status} )
           </h1>
           <div className="btn-wrapper col-lg-3">
             <div className="form align-items-center d-flex">
@@ -130,25 +121,26 @@ const Stage3 = ({status}) => {
             </Form.Control>
           </div>
         </div>
+
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
           <p className="text-danger">Error: {error}</p>
         ) : (
-<>
-          {uniqueCustomers?.length <= 0 && (
+        <div className="credit-card-container">
+          {customers?.length <= 0 && (
             <div className="text-center"> No Records Found</div>
           )}
-        <div className="credit-card-container">
-          {  uniqueCustomers?.length > 0 &&
-                uniqueCustomers.map((customer) => ( 
+
+{  customers?.length > 0 &&
+                customers.map((customer) => (
           <Card className="credit-card">
             <div className="credit-card-header">
-              <h5>{customer?.party?.name}</h5> &nbsp;| &nbsp;
-              <p>{customer?.subParty?.name}</p>
+              <h5>{customer?.party?.name}</h5> &nbsp;| &nbsp; {customer?.subParty?.name}&nbsp; |&nbsp;
+              <p>{customer?.modelInfo?.model?.name}</p>
             </div>
             <div className="credit-card-body row">
-            <div className={`${status === 'approved' || status === 'rejected' ? "col-md-12 col-lg-7 col-sm-12" :"col-md-12 col-lg-6 col-sm-12"} `}>
+              <div className={`${status === 'approved' || status === 'rejected' ? "col-md-12 col-lg-7 col-sm-12" :"col-md-12 col-lg-6 col-sm-12"} `}>
               <div className="credit-card-details ">
                 <Row>
                   <Col lg="2" md="6" sm="12" xs="12">
@@ -230,11 +222,10 @@ const Stage3 = ({status}) => {
                       <Col md="12" lg="12" sm="12">
                         <div className="COPO">
                           <h6 className="d-flex justify-content-between">
-                            {" "}
-                            <span className="prmclor">CO </span>{" "}
+                            <span className="prmclor">PC </span>
                             <Badge bg="danger">Review Required</Badge>
                           </h6>
-                          <button className="btnreason Satgebtnreason">
+                          <button className="btnreason Satgebtnreason ">
                             Reasons
                           </button>
                           <button className="btnreason Satgebtnreason">
@@ -251,24 +242,23 @@ const Stage3 = ({status}) => {
               </div></div>
               <div className={`${status === 'approved' || status === 'rejected'   ? " d-none" :"col-md-12 col-lg-2 col-sm-12"}`}>
               <div className="credit-card-actions ">
-                <button className="w-100 btn btn-primary"    onClick={(e) => {
+                <button className="w-100 btn btn-primary" onClick={(e) => {
                             e.preventDefault();
                             handleChangeStatus(customer?._id, "approved", "");
                           }}>✓</button>
-                <button className="w-100 btn btn-secondary" onClick={(e) => {
-                            e.preventDefault();
-                            handleChangeStatus(customer?._id, "rejected", "");
-                          }}>✕</button>
+                <button className="w-100 btn btn-secondary" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleChangeStatus(customer?._id, "rejected", "");
+                }}>✕</button>
               </div>
               </div>
             </div>
-          </Card>
-          ))}
-        </div>
-        </>)}
+          </Card> ))}
+        </div>)}
       </div>
     </Layout>
   );
 };
 
-export default Stage3;
+export default StagePC;
