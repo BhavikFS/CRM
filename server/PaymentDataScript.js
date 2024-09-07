@@ -29,7 +29,7 @@ const migrateData = async () => {
     console.log('Migration process started.');
 
     // Set all fields to null for every Party initially
-    await Party.updateMany({}, { $set: { creditDays: null, creditLimit: null, totalOverdue: null } });
+    await Party.updateMany({}, { $set: { creditDays: null, creditLimit: null, totalOverdue: null, diffDays: null, totalDebit: null } });
     console.log('Reset creditDays, creditLimit, and totalOverdue to null for all Parties.');
 
     // Load data from Sheet 3
@@ -46,11 +46,16 @@ const migrateData = async () => {
       let party = await Party.findOne({ name: rowData['Party Name'] });
 
       if (party) {
-        // Update the Party with Credit Days, Credit Limit, and Total Overdue if available
+        const overDue = rowData['Over Due'] ?? 0;
+        const belowDue = rowData['Below Due'] ?? 0;
+        const totalDebit = overDue + belowDue;
+
+
         party.creditDays = rowData['Credit Days'] ?? null;
         party.creditLimit = rowData['Credit Limit'] ?? null;
         party.totalOverdue = rowData['Total Due'] ?? null;
-        
+        party.diffDays = rowData['Diff. Days'] ?? null;
+        party.totalDebit = totalDebit;
         await party.save();
         console.log(`Updated Party: ${party.name}`);
       } else {
