@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
-const salesSchema = new mongoose.Schema({
+const modelSchema = new mongoose.Schema({
+  name: { type: String, required: true},
   itemCode: { type: String, required: true, unique: true },
+  party: { type: mongoose.Schema.Types.ObjectId, ref: 'Party', required: true },
   subParty: { type: mongoose.Schema.Types.ObjectId, ref: 'SubParty' },
   listPrice: {type: Number},
   discount: {type: Number},
@@ -10,6 +12,6 @@ const salesSchema = new mongoose.Schema({
   itemRate: {type: Number}
 });
 
-const Sales = mongoose.model('Sales', salesSchema);
+const Model = mongoose.model('Model', modelSchema);
 
-module.exports = Sales;
+module.exports = Model;
