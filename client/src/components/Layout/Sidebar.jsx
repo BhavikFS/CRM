@@ -207,7 +207,7 @@ Rejected
   {isHistoryOpen && (
     <div className="sub-menu">
       <Link to="/Pending-stageForPC" className="sub-item">
-        Pendig
+        Pending
       </Link>
       <Link to="/Approved-stageForPC" className="sub-item">
        Approved
