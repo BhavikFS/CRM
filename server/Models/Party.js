@@ -8,6 +8,8 @@ const partySchema = new mongoose.Schema({
   creditDays: { type: Number },
   creditLimit: { type: Number },
   totalOverdue: { type: Number },
+  diffDays: { type: Number },
+  totalDebit: { type: Number },
 });
 
 const Party = mongoose.model('Party', partySchema);

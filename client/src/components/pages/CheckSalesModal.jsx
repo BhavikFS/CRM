@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal, Table } from "react-bootstrap";
 
 function CheckSalesModal({ show, onHide }) {
@@ -33,7 +32,7 @@ function CheckSalesModal({ show, onHide }) {
                 <tr key={index}>
                   <td className="pt-3">{sale.id}</td>
                   <td> <span>Date</span> <p> {sale.date} </p></td>
-                  <td> <span>Last Price </span><p> {sale.lastPrice}</p></td>
+                  <td> <span>Total Amount </span><p> {sale.lastPrice}</p></td>
                   <td><span> Quantity </span><p>{sale.quantity}</p></td>
                   <td> <span>Item Rate </span> <p>{sale.itemRate}</p></td>
                 </tr>
