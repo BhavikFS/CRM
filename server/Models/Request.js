@@ -40,6 +40,9 @@ const requestSchema = new mongoose.Schema(
     requestID: { type: String, required: true },
     managerStatusCO: { type: String, enum: ["approved", "rejected"] },
     managerStatusPC: { type: String, enum: ["approved", "rejected"] },
+    freightCharge: { type: Number },
+    materialInsuranceRate: { type:Number },
+    emailUserList: [ {type: mongoose.Schema.Types.ObjectId, ref: "User"} ]
   },
   { timestamps: true }
 );

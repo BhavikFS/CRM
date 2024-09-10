@@ -43,8 +43,12 @@ router.get("/get-users", authenticateToken, async (req, res) => {
     const { role, limit = 10, page = 1 } = req.query;
 
     // Create a filter object based on the role parameter
-    const filter = role && role !== 'all' ? { role } : {};
+    let filter = role && role !== 'all' ? { role } : {};
 
+    // If role is not 'all', exclude the currently authenticated user's ID
+    if (role === 'all') {
+      filter = { ...filter, _id: { $ne: req.user._id } };
+    }
     // Calculate the skip value
     const skip = (page - 1) * limit;
 
