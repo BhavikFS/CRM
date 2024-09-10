@@ -1,9 +1,9 @@
-// scripts/migrateSheet4.js
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
 const path = require('path');
 const cliProgress = require('cli-progress');
-const Model = require('./Models/Modal');
+const Stock = require('./Models/Stock'); // Updated to use Stock schema
+const Model = require('./Models/Modal'); // Assuming Model is the referenced model in Stock
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://bhavikfs22:MUoCC3LotV4Z5zBz@cluster0.dbrjpil.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0/CRM', {
@@ -38,17 +38,36 @@ const migrateData = async () => {
 
     // Process each row in Sheet 4
     for (const [index, rowData] of data.entries()) {
-      // Find the Model by Item Code
-      let model = await Model.findOne({ itemCode: rowData['Item Code'] });
+      const itemCode = rowData['Item Code']
+      let model = await Model.findOne({ itemCode });
 
       if (model) {
-        // Update the Model with Stock Date, Quantity, and Item Rate if available
-        model.stockDate = rowData['Stock Date'] ? new Date(rowData['Stock Date']) : model.stockDate;
-        model.quantity = rowData['Qty'] ?? null;
-        model.itemRate = rowData['Item Rate'] ?? null;
-        
-        await model.save();
-        console.log(`Updated Model: ${model.name} with Item Code: ${model.itemCode}`);
+        // Create a stock entry based on the current row
+        const stockEntry = {
+          stockDate: rowData['Stock Date'] ? new Date(rowData['Stock Date']) : null,
+          stockQuantity: rowData['Qty'] ?? null,
+          itemRate: rowData['Item Rate'] ?? null,
+          itemValue: rowData['Item Value'] ?? null,
+        };
+
+        // Check if Stock entry for this itemCode already exists
+        let stock = await Stock.findOne({ model: model._id });
+
+        if (stock) {
+          // If stock entry exists, push the new stock data into stockData array
+          stock.stockData.push(stockEntry);
+          await stock.save();
+          console.log(`Updated Stock with Item Code: ${model.itemCode}`);
+        } else {
+          // If no stock entry exists, create a new Stock document
+          stock = new Stock({
+            model: model._id,
+            itemCode,
+            stockData: [stockEntry],
+          });
+          await stock.save();
+          console.log(`Created new Stock for Item Code: ${model.itemCode}`);
+        }
       } else {
         console.log(`Model not found for Item Code: ${rowData['Item Code']}`);
       }
