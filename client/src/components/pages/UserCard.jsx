@@ -10,7 +10,7 @@ const UserCard = ({ name, email, onRemove, icon }) => {
         <span className="mb-0 nameUser">{name}</span>
         <span className="mb-0 nameUserSub">{email}</span>
       </Card.Body>
-        <button className='closebtn'>
+        <button className='closebtn' onClick={onRemove}>
           {icon ?  <i className='fa fa-check'></i> :<i className='fa fa-xmark'></i>}
         </button>
 

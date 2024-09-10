@@ -1,18 +1,69 @@
-import { Card, Col, Form, Modal, Row } from "react-bootstrap";
+import { Card, Col, Form, Modal, Row, Alert, Spinner } from "react-bootstrap";
 import Layout from "../../Layout/Layout";
 import "../../../assets/css/Stage4.css";
+import profile from "../../../assets/images/Avatar.png";
+
 import UserCard from "../UserCard";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import UserListModal from "../../Modal/UserListModal";
+import { getAuthConfig ,post} from "../../../libs/http-hydrate";
 function Stage4() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const request = location?.state?.request
   const [modalSubmit, setmodalSubmit] = useState(false);
-  const users = [
-    { id: 1, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 2, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 3, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 4, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 5, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 6, name: "Saathi G.", email: "abc@gmail.com" },
-  ];
+  const [modalUserlist,setModalUserlist] = useState(false);
+  const [users,setUsers] = useState([])
+  const [freightCharge, setFreightCharge] = useState('');
+  const [materialInsuranceRate, setMaterialInsuranceRate] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const handleRemove = (userId) => {
+    console.log(userId,users)
+    setUsers(users.filter(user => user._id != userId));
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+
+    // Input validation
+    if (!freightCharge || isNaN(freightCharge) || freightCharge <= 0) {
+      setError("Freight charge must be a positive number");
+      return;
+    }
+    if (!materialInsuranceRate || isNaN(materialInsuranceRate) || materialInsuranceRate <= 0) {
+      setError("Material insurance rate must be a positive number");
+      return;
+    }
+    if (users.length === 0) {
+      setError("Please select at least one user.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const requestId = request._id;
+      const emailUserList = users.map((user) => user._id);
+      const response = await post(`/api/request/completedRequest?requestId=${requestId}`, {
+        freightCharge: Number(freightCharge),
+        materialInsuranceRate: Number(materialInsuranceRate),
+        emailUserList
+      },getAuthConfig());
+
+     
+        setSuccessMessage("Request updated and marked as completed");
+        setmodalSubmit(true);
+      
+    } catch (err) {
+      setError("Error submitting the request: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <Layout>
@@ -26,14 +77,14 @@ function Stage4() {
                     {" "}
                     <p>
                       <span className="nameUser">Party Name</span> <br />{" "}
-                      <span className="nameUserSub"> Sathi UI/UX....</span>{" "}
+                      <span className="nameUserSub"> {request?.party?.name}</span>{" "}
                     </p>{" "}
                   </Col>
                   <Col lg="2" md="6" sm="12" xs="12">
                     {" "}
                     <p>
                       <span className="nameUser">Model Name</span> <br />{" "}
-                      <span className="nameUserSub"> Sathi UI/UX.... </span>{" "}
+                      <span className="nameUserSub">  {request?.modelInfo?.model?.name} </span>{" "}
                     </p>{" "}
                   </Col>
                   <Col lg="2" md="6" sm="12" xs="12">
@@ -74,7 +125,9 @@ function Stage4() {
                       controlId="formPartyName"
                     >
                       <Form.Label>Freight Charge Rate </Form.Label>
-                      <Form.Control type="text" placeholder="$12000" />
+                      <Form.Control type="text" placeholder="$12000"  value={freightCharge}
+                        onChange={(e) => setFreightCharge(e.target.value)}
+                     />
                     </Form.Group>
 
                     <Form.Group
@@ -84,7 +137,9 @@ function Stage4() {
                       controlId="formPartyName"
                     >
                       <Form.Label>Material Insurance Rate </Form.Label>
-                      <Form.Control type="text" placeholder="$12000" />
+                      <Form.Control type="text" placeholder="$12000"  value={materialInsuranceRate}
+                        onChange={(e) => setMaterialInsuranceRate(e.target.value)}
+                       />
                     </Form.Group>
                   </Row>
                 </Form>
@@ -93,33 +148,49 @@ function Stage4() {
             <Card className="p-2 cardstage4 mt-3">
               <Card.Header className="d-flex justify-content-between bg-white">
                 <h5>Select Recipients</h5>
-                <button className="selectbtn">Select Recipients </button>
+                <button className="selectbtn" onClick={(e) =>{
+                  e.preventDefault();
+                  setModalUserlist(true)
+                }}>Select Recipients </button>
               </Card.Header>
               <Card.Body>
                 <Row>
+                  {users?.length <= 0 && <div className="text-center"> No User Selected </div>}
                   {users.map((user) => (
                     <Col key={user.id} xs={12} md={12} lg={4}>
-                      <UserCard
-                        name={user.name}
-                        email={user.email}
-                        onRemove={() => handleRemove(user.id)}
-                      />
+                      <Card className="d-flex flex-row align-items-center mb-3">
+      <Card.Img variant="left" src={profile} style={{ width: '40px', height: '40px', borderRadius: '50%',marginLeft:"5px" }} />
+      <Card.Body className="d-flex flex-column align-items-start">
+        <span className="mb-0 nameUser">{user?.username}</span>
+        <span className="mb-0 nameUserSub">{user?.email}</span>
+      </Card.Body>
+        <button className='closebtn' onClick={(e) =>{
+          e.preventDefault
+            handleRemove(user?._id)
+        }}>
+          <i className='fa fa-xmark'></i>
+        </button>
+
+        {/* <button className='closebtnSelected'>
+          {icon ?  <i className='fa fa-check' style={{color:"white"}}></i> :<i className='fa fa-xmark'></i>}
+        </button> */}
+    </Card>
                     </Col>
                   ))}
                 </Row>
               </Card.Body>
             </Card>
+            {error && <Alert variant="danger">{error}</Alert>}
+                  {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
             <div className="d-flex justify-content-end mt-2">
               <button className="btnscndry">Cancel</button>
               <button
                 className="btnprm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setmodalSubmit(true);
-                }}
+                onClick={handleSubmit}
+                disabled={loading}
               >
-                Submit
+                {loading ? <Spinner  variant="light"  /> : "Submit"}
               </button>
             </div>
           </div>
@@ -165,13 +236,15 @@ function Stage4() {
             className="btnprm w-100"
             onClick={(e) => {
               e.preventDefault();
-              setmodalSubmit(true);
+              navigate("/")
+             // setmodalSubmit(true);
             }}
           >
             Okay
           </button>
         </Modal.Footer>
       </Modal>
+      <UserListModal  show={modalUserlist} onHide={()=>setModalUserlist(false)} selectedUsers={users} setselectedUser={setUsers}/>
     </>
   );
 }

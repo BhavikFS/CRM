@@ -301,6 +301,57 @@ router.post("/update-status", authenticateToken, async (req, res) => {
   }
 });
 
+router.post("/completedRequest", authenticateToken,async (req, res) => {
+  try {
+    const { requestId } = req.query;
+    const { freightCharge, materialInsuranceRate, emailUserList } = req.body;
+
+    // Find the request by ID
+    const request = await Request.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    // Validations
+    if (typeof freightCharge !== "number" || freightCharge <= 0) {
+      return res.status(400).json({ error: "Freight charge must be a positive number" });
+    }
+
+    if (typeof materialInsuranceRate !== "number" || materialInsuranceRate <= 0) {
+      return res.status(400).json({ error: "Material insurance rate must be a positive number" });
+    }
+
+    if (!Array.isArray(emailUserList) || emailUserList.length === 0) {
+      return res.status(400).json({ error: "Email user list must be an array of valid user IDs" });
+    }
+
+    // Validate each email user is a valid ObjectId and exists in the User model
+    for (const userId of emailUserList) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ error: `Invalid user ID in emailUserList: ${userId}` });
+      }
+
+      const userExists = await User.findById(userId);
+      if (!userExists) {
+        return res.status(400).json({ error: `User not found for ID: ${userId}` });
+      }
+    }
+
+    // Update the request with the new details
+    request.freightCharge = freightCharge;
+    request.materialInsuranceRate = materialInsuranceRate;
+    request.emailUserList = emailUserList;
+    request.status = "completed";
+
+    // Save the updated request
+    await request.save();
+
+    return res.status(200).json({ message: "Request updated and marked as completed", request });
+  } catch (error) {
+    console.error("Error updating request:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
 
 router.get("/CO/requests-list", authenticateToken, async (req, res) => {
   try {
