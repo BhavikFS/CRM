@@ -5,9 +5,10 @@ const approvalSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "ReviewRequired"],
+      enum: ["pending", "approved", "rejected", "ReviewRequired", "ReviewBack"],
       required: true,
     },
+    reasons: [{type: String, required: true}],
     comments: { type: String },
   },
   { timestamps: true }

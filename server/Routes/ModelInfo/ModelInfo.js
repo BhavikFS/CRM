@@ -3,6 +3,7 @@ const router = express.Router();
 const ModelInfo = require("../../Models/ModelInfo"); // Adjust the path to your ModelInfo model
 const Model = require("../../Models/Modal"); // Adjust the path to your Model model
 const authenticateToken = require("../../Middleware/AuthenticateToken");
+const Request = require("../../Models/Request"); // Adjust the path to your Model model
 
 // POST endpoint to create a new request
 router.post("/create-model-info", authenticateToken,async (req, res) => {
@@ -83,11 +84,10 @@ router.get('/get-all-model-info', async (req, res) => {
 });
 
 // Update API for ModelInfo
-router.put('/update-model-info/:id',authenticateToken,async (req, res) => {
+router.put('/update-model-info/:id', authenticateToken, async (req, res) => {
   try {
     const { modelId, requestPrice, requestDiscount, requestQuantity, reasons } = req.body;
     const { id } = req.params;
-
     // Validate the input data
     if (
       !modelId ||
@@ -116,20 +116,35 @@ router.put('/update-model-info/:id',authenticateToken,async (req, res) => {
         { path: 'party', select: 'name' },        // Adjust fields as necessary
         { path: 'subParty', select: 'name' }
       ]
-    })
-    .populate('generatedBy', 'username'); // Populate generatedBy if necessary
-
+    }).populate('generatedBy', 'username'); // Populate generatedBy if necessary
 
     if (!updatedModelInfo) {
       return res.status(404).json({ error: 'ModelInfo not found' });
     }
 
+    if(updatedModelInfo?.requestId){
+    // Check if the requestID exists in the Request schema and update its status to "pending"
+    const request = await Request.findOneAndUpdate(
+      { _id: updatedModelInfo?.requestId }, 
+      { status: 'pending' },
+      { new: true }
+    );
+
+    if (request) {
+      // Update approval statuses for pricingUsers and financeUsers if needed
+      request.pricingUsers.status = 'pending';
+      request.financeUsers.status = 'pending';
+
+      await request.save(); // Save the updated request
+    }
+  }
     return res.status(200).json({ success: true, data: updatedModelInfo });
   } catch (error) {
     console.error('Error updating model info:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Delete API for ModelInfo
 router.delete('/delete-model-info', async (req, res) => {
