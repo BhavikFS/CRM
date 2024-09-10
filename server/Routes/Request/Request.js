@@ -137,7 +137,7 @@ router.get("/requests-list", authenticateToken, async (req, res) => {
 
 router.post("/update-status", authenticateToken, async (req, res) => {
   try {
-    const { id, status, comments, roleToupdate } = req.body;
+    const { id, status, comments, roleToupdate ,reasons} = req.body;
 
     const request = await Request.findById(id);
     if (!request) {
@@ -150,80 +150,58 @@ router.post("/update-status", authenticateToken, async (req, res) => {
         user: req.user._id,
         status: status,
         comments: comments,
+        reasons: reasons
       };
 
       switch (status) {
         case "ReviewRequired":
-          request.status = "ReviewRequired";
+        case "ReviewBack": // Handle ReviewBack as ReviewRequired
+          request.status = status;
           break;
         case "rejected":
           request.status = "rejected";
           break;
-          case "approved":
-            switch (request.financeUsers.status) {
-              case "pending":
-                request.status = "pending";
-                break;
-              case "rejected":
-                request.status = "rejected";
-                break;
-              case "ReviewRequired":
-                request.status = "ReviewRequired";
-                break;
-              default:
-                request.status = "approved";
-                break;
-            }
-            break;
+        case "approved":
+          switch (request.financeUsers.status) {
+            case "pending":
+              request.status = "pending";
+              break;
+            case "rejected":
+              request.status = "rejected";
+              break;
+            case "ReviewRequired":
+            case "ReviewBack": // Handle ReviewBack as ReviewRequired
+              request.status = "ReviewRequired";
+              break;
+            default:
+              request.status = "approved";
+              break;
+          }
+          break;
         default:
           break;
       }
-
-      // if (status === "ReviewRequired") {
-      //   request.status = "ReviewRequired";
-      // } else {
-      //   if (status === "rejected") {
-      //     request.status = "rejected";
-      //   } else if (
-      //     status === "approved" &&
-      //     request.financeUsers.status === "pending"
-      //   ) {
-      //     request.status = "pending";
-      //   } else if (
-      //     status === "approved" &&
-      //     request.financeUsers.status === "rejected"
-      //   ) {
-      //     request.status = "rejected";
-      //   } else if (
-      //     status === "approved" &&
-      //     reqItem.financeUsers.status === "ReviewRequired"
-      //   ) {
-      //     request.status = "ReviewRequired";
-      //   } else {
-      //     request.status = "approved";
-      //   }
-      // }
     }
 
     if (req.user.role === "CO") {
       const requests = await Request.find({ requestID: request.requestID });
 
-      if (status === "ReviewRequired") {
+      if (status === "ReviewRequired" || status === "ReviewBack") {
         await Request.updateMany(
-          { requestID: request.requestID }, // Find all requests with the same requestID
+          { requestID: request.requestID },
           {
             $set: {
               financeUsers: {
                 user: req.user._id,
                 status: status,
                 comments: comments,
+                reasons: reasons
               },
-              status: "ReviewRequired",
+              status: status,
             },
           }
         );
       } else {
-        // Loop through all requests and update them based on specific conditions
         for (const reqItem of requests) {
           if (status === "rejected") {
             reqItem.financeUsers = {
@@ -244,7 +222,8 @@ router.post("/update-status", authenticateToken, async (req, res) => {
             reqItem.status = "pending";
           } else if (
             status === "approved" &&
-            reqItem.pricingUsers.status === "ReviewRequired"
+            (reqItem.pricingUsers.status === "ReviewRequired" ||
+              reqItem.pricingUsers.status === "ReviewBack")
           ) {
             reqItem.financeUsers = {
               user: req.user._id,
@@ -271,7 +250,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
             reqItem.status = "approved";
           }
 
-          await reqItem.save(); // Save each updated request
+          await reqItem.save();
         }
       }
 
@@ -284,9 +263,8 @@ router.post("/update-status", authenticateToken, async (req, res) => {
     // If there is a manager update needed
     if (req.user.role === "Manager") {
       if (roleToupdate === "CO") {
-        // Update managerStatusCO for all requests with the same requestID
         await Request.updateMany(
-          { requestID: request.requestID }, // Find all requests with the same requestID
+          { requestID: request.requestID },
           {
             $set: {
               managerStatusCO: status,
@@ -303,7 +281,6 @@ router.post("/update-status", authenticateToken, async (req, res) => {
           message: "Manager updated all CO requests successfully",
         });
       } else if (roleToupdate === "PC") {
-        // Update managerStatusPC for only this specific request
         request.managerStatusPC = status;
         request.manager = {
           user: req.user._id,
@@ -315,9 +292,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
     }
 
     if (req.user.role != "CO") {
-      // Save the updated request
       await request.save();
-
       res.json({ message: "Request updated successfully", request });
     }
   } catch (error) {
@@ -325,6 +300,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 router.get("/CO/requests-list", authenticateToken, async (req, res) => {
   try {

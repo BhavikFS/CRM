@@ -7,6 +7,7 @@ import {
   Card,
   Badge,
   Form,
+  Spinner,
 } from "react-bootstrap";
 import "../../../assets/css/stage.css";
 import Layout from "../../Layout/Layout";
@@ -17,6 +18,10 @@ const Stage3 = ({status}) => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null); // To track the selected customer for reject/return for revision
+  const [loadingCustomerIds, setLoadingCustomerIds] = useState([]); // To track loading state for individual requests
+  const [RejectModalshow, setRejectModal] = useState(false);
+
   useEffect(() => {
       const fetchData = async () => {
         setLoading(true);
@@ -52,6 +57,8 @@ const Stage3 = ({status}) => {
 
       const handleChangeStatus = async (id, newStatus, comments) => {
         try {
+          setLoadingCustomerIds((prev) => [...prev, id]); // Set loading for specific customer
+
           const response = await post(
             "/api/request/update-status",
             {
@@ -70,7 +77,19 @@ const Stage3 = ({status}) => {
           //}
         } catch (err) {
           setError(`Failed to update status: ${err.message}`);
+        } finally {
+          setLoadingCustomerIds((prev) => prev.filter((cid) => cid !== id)); // Remove loading state for specific customer
         }
+      };
+        // Handle reject action
+        const handleReject = () => {
+          handleChangeStatus(selectedCustomerId, "rejected", "");
+          setRejectModal(false);
+        };
+          // Handle return for revision action
+      const handleReturnForRevision = () => {
+        handleChangeStatus(selectedCustomerId, "ReviewBack", "");
+        setRejectModal(false);
       };
     
 
@@ -251,14 +270,19 @@ const Stage3 = ({status}) => {
               </div></div>
               <div className={`${status === 'approved' || status === 'rejected'   ? " d-none" :"col-md-12 col-lg-2 col-sm-12"}`}>
               <div className="credit-card-actions ">
+              {loadingCustomerIds.includes(customer._id) ? (
+                          <Spinner animation="border" variant="primary" />
+                        ) : ( <>
                 <button className="w-100 btn btn-primary"    onClick={(e) => {
                             e.preventDefault();
                             handleChangeStatus(customer?._id, "approved", "");
                           }}>✓</button>
                 <button className="w-100 btn btn-secondary" onClick={(e) => {
                             e.preventDefault();
-                            handleChangeStatus(customer?._id, "rejected", "");
-                          }}>✕</button>
+                            setSelectedCustomerId(customer._id);
+                            setRejectModal(true);                          }}>✕</button>
+
+                          </>)}
               </div>
               </div>
             </div>

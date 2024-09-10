@@ -8,6 +8,7 @@ import { Column } from "primereact/column";
 import { get } from "../../libs/http-hydrate";
 import { getAuthConfig } from "../../libs/http-hydrate";
 import moment from "moment";
+import EditModal from "../Modal/EditModal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,6 +21,9 @@ const Dashboard = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
   const [search, setSearch] = useState("");
+  const [EditModalShow,setEditModalShow] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null); // To track the selected customer for reject/return for revision
+  const [reload,setReload]=useState(false)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -45,7 +49,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [page, limit, sortBy, search]);
+  }, [page, limit, sortBy, search, reload]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -112,7 +116,27 @@ const Dashboard = () => {
         ></span>
         Pending
       </div>
-    ) : (
+    ) :
+    rowData.status === "ReviewBack" ?
+    (
+      <div
+        className="alert alert-info d-flex align-items-center"
+        role="alert"
+      >
+        <span
+          style={{
+            height: "10px",
+            width: "10px",
+            backgroundColor: "#055160",
+            borderRadius: "50%",
+            display: "inline-block",
+            marginRight: "8px",
+          }}
+        ></span>
+        Review Back
+      </div>
+    ):
+    (
       <div
         className="alert alert-danger d-flex align-items-center"
         role="alert"
@@ -138,13 +162,19 @@ const Dashboard = () => {
         {/* // <span onClick={() => handleShowModal(rowData)}>
       //   <i className="fas fa-eye"></i>
       // </span> */}
-        {rowData?.status === "revision" ? (
+        {rowData?.status === "ReviewBack" ? (
           <svg
             width="18"
             height="21"
             viewBox="0 0 18 21"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            style={{cursor:"pointer"}}
+            onClick={(e) =>{
+              e.preventDefault();
+              handleEditClick(rowData)
+              //setEditModalShow(true)
+            }}
           >
             <path
               d="M10.8 0.300003V5.7C10.8 6.17739 10.9896 6.63523 11.3272 6.9728C11.6648 7.31036 12.1226 7.5 12.6 7.5H18V17.7C18 18.1774 17.8104 18.6352 17.4728 18.9728C17.1352 19.3104 16.6774 19.5 16.2 19.5H10.4916C11.3878 18.4147 11.9136 17.0712 11.9922 15.6659C12.0708 14.2605 11.698 12.8669 10.9283 11.6884C10.1586 10.51 9.03233 9.60842 7.71392 9.11548C6.39551 8.62253 4.95404 8.56399 3.6 8.9484V2.1C3.6 1.62261 3.78964 1.16478 4.12721 0.827211C4.46477 0.489645 4.92261 0.300003 5.4 0.300003H10.8ZM12 0.600003V5.7C12 5.85913 12.0632 6.01174 12.1757 6.12427C12.2883 6.23679 12.4409 6.3 12.6 6.3H17.7L12 0.600003ZM10.8 15.3C10.8 16.7322 10.2311 18.1057 9.21838 19.1184C8.20568 20.1311 6.83217 20.7 5.4 20.7C3.96783 20.7 2.59432 20.1311 1.58162 19.1184C0.568927 18.1057 0 16.7322 0 15.3C0 13.8678 0.568927 12.4943 1.58162 11.4816C2.59432 10.4689 3.96783 9.9 5.4 9.9C6.83217 9.9 8.20568 10.4689 9.21838 11.4816C10.2311 12.4943 10.8 13.8678 10.8 15.3ZM2.5764 14.8752L2.5728 14.8788C2.46297 14.9902 2.40097 15.14 2.4 15.2964V15.3036C2.40098 15.4612 2.46391 15.612 2.5752 15.7236L4.9752 18.1236C5.03091 18.1794 5.09706 18.2237 5.16987 18.2539C5.24268 18.2841 5.32074 18.2997 5.39958 18.2997C5.47841 18.2998 5.55649 18.2843 5.62935 18.2542C5.7022 18.2241 5.76841 18.1799 5.8242 18.1242C5.87999 18.0685 5.92425 18.0023 5.95447 17.9295C5.98469 17.8567 6.00028 17.7787 6.00033 17.6998C6.00039 17.621 5.98492 17.5429 5.9548 17.4701C5.92468 17.3972 5.88051 17.331 5.8248 17.2752L4.4484 15.9H7.8C7.95913 15.9 8.11174 15.8368 8.22426 15.7243C8.33679 15.6117 8.4 15.4591 8.4 15.3C8.4 15.1409 8.33679 14.9883 8.22426 14.8757C8.11174 14.7632 7.95913 14.7 7.8 14.7H4.4484L5.8248 13.3248C5.93746 13.2121 6.00076 13.0593 6.00076 12.9C6.00076 12.7407 5.93746 12.5879 5.8248 12.4752C5.71214 12.3625 5.55933 12.2992 5.4 12.2992C5.24067 12.2992 5.08786 12.3625 4.9752 12.4752L2.5764 14.8752Z"
@@ -174,6 +204,12 @@ const Dashboard = () => {
     );
   };
 
+    // Open modal with selected customer data
+    const handleEditClick = (customer) => {
+      setSelectedCustomer(customer); // Set selected customer
+      setEditModalShow(true); // Show the modal
+    };
+  
   return (
     <Layout>
       <div className="p-2 p-md-5 p-sm-3">
@@ -362,6 +398,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <EditModal show={EditModalShow} hide={() => setEditModalShow(false)} selectedModel={selectedCustomer}  setReload={setReload}/>
     </Layout>
   );
 };
