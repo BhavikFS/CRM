@@ -200,7 +200,7 @@ const Dashboard = () => {
             />
           </svg>
         ) : rowData?.status === "pending" ? (
-          <span onClick={() => handleShowModal(rowData)}>
+          <span style={{cursor:"pointer"}} onClick={() => handleEditClick(rowData)}>
             <i className="fas fa-eye"></i>
           </span>
         ) : rowData?.status === "approved"?(

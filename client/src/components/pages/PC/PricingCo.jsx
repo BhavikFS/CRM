@@ -26,6 +26,13 @@ const PricingCo = ({ status }) => {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null); // To track the selected customer for reject/return for revision
   const [loadingCustomerIds, setLoadingCustomerIds] = useState([]); // To track loading state for individual requests
   const [selectedReasons, setSelectedReasons] = useState({}); // To track selected reasons for each request
+  const [expandedCustomers, setExpandedCustomers] = useState({}); // State to track expanded details
+  const toggleDetails = (customerId) => {
+    setExpandedCustomers((prev) => ({
+      ...prev,
+      [customerId]: !prev[customerId],
+    }));
+  };
   const handleSelectReason = (customerId, reason) => {
     setSelectedReasons((prev) => {
       const currentReasons = prev[customerId] || [];
@@ -158,14 +165,14 @@ const PricingCo = ({ status }) => {
                           <Col lg="2" md="6" sm="12" xs="12">
                             <p>
                               <span className="nameUser">City </span> <br />{" "}
-                              <span className="nameUserSub">Ahmed...</span>
+                              <span className="nameUserSub">{customer?.party?.city}</span>
                             </p>{" "}
                           </Col>
                           <Col lg="2" md="6" sm="12" xs="12">
                             {" "}
                             <p>
                               <span className="nameUser">Credit Days</span>{" "}
-                              <br /> <span className="nameUserSub"> 15</span>{" "}
+                              <br /> <span className="nameUserSub"> {customer?.party?.creditDays}</span>{" "}
                             </p>{" "}
                           </Col>
                           <Col lg="3" md="6" sm="12" xs="12">
@@ -173,7 +180,7 @@ const PricingCo = ({ status }) => {
                             <p>
                               <span className="nameUser">Credit Limit</span>{" "}
                               <br />{" "}
-                              <span className="nameUserSub"> 15,000 </span>{" "}
+                              <span className="nameUserSub"> {customer?.party?.creditLimit} </span>{" "}
                             </p>{" "}
                           </Col>
                           <Col lg="2" md="6" sm="12" xs="12">
@@ -181,7 +188,7 @@ const PricingCo = ({ status }) => {
                             <p>
                               <span className="nameUser"> Total Debit </span>{" "}
                               <br />{" "}
-                              <span className="nameUserSub"> 15,000 </span>
+                              <span className="nameUserSub">{customer?.party?.totalDebit} </span>
                             </p>{" "}
                           </Col>
                           <Col lg="3" md="6" sm="12" xs="12">
@@ -198,7 +205,7 @@ const PricingCo = ({ status }) => {
                             <p>
                               <span className="nameUser">Total Overdue </span>{" "}
                               <br />
-                              <span className="nameUserSub"> 12,020 </span>
+                              <span className="nameUserSub"> {customer?.party?.totalOverdue} </span>
                             </p>{" "}
                           </Col>
                           <Col lg="2" md="6" sm="12" xs="12">
@@ -342,73 +349,58 @@ const PricingCo = ({ status }) => {
                     <div className="col-md-12 col-lg-6 col-sm-12">
                       <div className="credit-card-details ">
                         <Row>
-                          <Col lg="2" md="6" sm="12" xs="12">
+                          <Col lg="3" md="6" sm="12" xs="12">
                             <p>
-                              <span className="nameUser">City </span> <br />{" "}
-                              <span className="nameUserSub">Ahmed...</span>
-                            </p>{" "}
-                          </Col>
-                          <Col lg="2" md="6" sm="12" xs="12">
-                            {" "}
-                            <p>
-                              <span className="nameUser">Credit Days</span>{" "}
-                              <br /> <span className="nameUserSub"> 15</span>{" "}
+                              <span className="nameUser">Item No. </span> <br />{" "}
+                              <span className="nameUserSub">{customer?.modelInfo?.model?.itemCode}</span>
                             </p>{" "}
                           </Col>
                           <Col lg="3" md="6" sm="12" xs="12">
                             {" "}
                             <p>
-                              <span className="nameUser">Credit Limit</span>{" "}
-                              <br />{" "}
-                              <span className="nameUserSub"> 15,000 </span>{" "}
-                            </p>{" "}
-                          </Col>
-                          <Col lg="2" md="6" sm="12" xs="12">
-                            {" "}
-                            <p>
-                              <span className="nameUser"> Total Debit </span>{" "}
-                              <br />{" "}
-                              <span className="nameUserSub"> 15,000 </span>
+                              <span className="nameUser">List Price</span>{" "}
+                              <br /> <span className="nameUserSub"> {customer?.modelInfo?.model?.listPrice}</span>{" "}
                             </p>{" "}
                           </Col>
                           <Col lg="3" md="6" sm="12" xs="12">
                             {" "}
                             <p>
-                              <span className="nameUser">Total Credit </span>
+                              <span className="nameUser">Discount</span>{" "}
                               <br />{" "}
-                              <span className="nameUserSub"> 20,200 </span>
+                              <span className="nameUserSub"> {customer?.modelInfo?.model?.discount} %</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="3" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Net Price</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> {customer?.modelInfo?.model?.itemRate}</span>
                             </p>{" "}
                           </Col>
                         </Row>
                         <Row>
-                          <Col lg="2" md="6" sm="12" xs="12">
+                          <Col lg="3" md="6" sm="12" xs="12">
                             <p>
-                              <span className="nameUser">Total Overdue </span>{" "}
+                              <span className="nameUser">Req. Price</span>{" "}
                               <br />
-                              <span className="nameUserSub"> 12,020 </span>
-                            </p>{" "}
-                          </Col>
-                          <Col lg="2" md="6" sm="12" xs="12">
-                            {" "}
-                            <p>
-                              {" "}
-                              <span className="nameUser">Lock Party</span>{" "}
-                              <br /> <span className="text-danger">Yes</span>
+                              <span className="nameUserSub"> {customer?.modelInfo?.requestPrice} </span>
                             </p>{" "}
                           </Col>
                           <Col lg="3" md="6" sm="12" xs="12">
                             {" "}
                             <p>
-                              <span className="nameUser">Days</span> <br />
-                              <span className="nameUserSub"> 12,020 </span>
+                              {" "}
+                              <span className="nameUser">Req. Discount</span>{" "}
+                              <br /> <span className="nameUserSub">{customer?.modelInfo?.requestDiscount} % </span>
                             </p>{" "}
                           </Col>
-                          <Col lg="2" md="6" sm="12" xs="12">
+                          <Col lg="3" md="6" sm="12" xs="12">
                             {" "}
                             <p>
-                              <span className="nameUser">Reason User </span>{" "}
-                              <br /> <span className="nameUserSub">16 </span>
-                            </p>
+                              <span className="nameUser">Quantity</span> <br />
+                              <span className="nameUserSub"> 12,020 </span>
+                            </p>{" "}
                           </Col>
                         </Row>
                       </div>
@@ -421,8 +413,9 @@ const PricingCo = ({ status }) => {
                         </Form.Group>
                       </div>
                       <div className="d-flex justify-content-center">
-                        <button className="btn mrdetailsbtn w-75">
-                          More Details
+                        <button className="btn mrdetailsbtn w-75"                         onClick={() => toggleDetails(customer._id)}
+>
+{expandedCustomers[customer._id] ? "Hide Details" : "More Details"}
                         </button>
                       </div>
                     </div>
@@ -510,6 +503,141 @@ const PricingCo = ({ status }) => {
                       </div>
                     </div>
                   </div>
+                  {expandedCustomers[customer._id] && (
+
+                  <div className="moreDetails credit-card-details pt-0 px-3 mt-3">
+                  <Row>
+                          <Col lg="4" sm="12" md="6" style={{borderRight:"1px solid #c3c4c5"}}>
+                              <p style={{marginTop:"10px"}}>Stocks</p>
+                          <hr  className="m-0"/>
+<Row className="gap-1">
+                              <Col lg="2" md="6" sm="12" xs="12">
+                            <p>
+                              <span className="nameUser">Date </span> <br />{" "}
+                              <span className="nameUserSub">20/6/2021</span>
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser">Last Price</span>{" "}
+                              <br /> <span className="nameUserSub"> UPI</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser">Quantity</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub">$2000</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Item Rate</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> $2000</span>
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Total Amount</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> $2000</span>
+                            </p>{" "}
+                          </Col>
+                          </Row>
+                          </Col>
+                          <Col lg="4" sm="12" md="6" style={{borderRight:"1px solid #c3c4c5"}}>
+                          <p style={{marginTop:"10px"}}>Sales</p>
+                          <hr className="m-0" />
+                          <Row className="gap-1">
+                              <Col lg="2" md="6" sm="12" xs="12">
+                            <p>
+                              <span className="nameUser">Date </span> <br />{" "}
+                              <span className="nameUserSub">20/6/2021</span>
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser">Last Price</span>{" "}
+                              <br /> <span className="nameUserSub"> UPI</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser">Quantity</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub">$2000</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Item Rate</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> $2000</span>
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Total Amount</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> $2000</span>
+                            </p>{" "}
+                          </Col>
+                          </Row>
+                          </Col>
+                          <Col lg="4" sm="12" md="6" style={{borderRight:"2px solid #E9EDF7"}}>
+                          <p style={{marginTop:"10px"}}>Purchase</p>
+                          <hr className="m-0"/>
+                          <Row className="gap-1">
+                              <Col lg="2" md="6" sm="12" xs="12">
+                            <p>
+                              <span className="nameUser">Date </span> <br />{" "}
+                              <span className="nameUserSub">20/6/2021</span>
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser">Last Price</span>{" "}
+                              <br /> <span className="nameUserSub"> UPI</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser">Quantity</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub">$2000</span>{" "}
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Item Rate</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> $2000</span>
+                            </p>{" "}
+                          </Col>
+                          <Col lg="2" md="6" sm="12" xs="12">
+                            {" "}
+                            <p>
+                              <span className="nameUser"> Total Amount</span>{" "}
+                              <br />{" "}
+                              <span className="nameUserSub"> $2000</span>
+                            </p>{" "}
+                          </Col>
+                          </Row>
+                          </Col>
+                  </Row>
+                  </div> )}
                 </Card>
               ))}
           </div>

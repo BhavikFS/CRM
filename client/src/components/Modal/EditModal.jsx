@@ -75,6 +75,8 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
       setLoading(false); // Hide the spinner
     }
   };
+  const isPendingStatus = selectedModel?.status === "pending"; // Check if the status is pending
+
   return (
     <Modal
       show={show}
@@ -146,6 +148,7 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
             <Form.Control
               type="text"
               value={requestPrice}
+              disabled={isPendingStatus}
               onChange={(e) => setRequestPrice(e.target.value)}
             />
           </Form.Group>
@@ -157,6 +160,7 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
               type="text"
               value={requestDiscount}
               onChange={(e) => setRequestDiscount(e.target.value)}
+              disabled={isPendingStatus}
             />
           </Form.Group>
 
@@ -166,19 +170,22 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
               type="text"
               value={requestQuantity}
               onChange={(e) => setRequestQuantity(e.target.value)}
+              disabled={isPendingStatus}
             />
           </Form.Group>
 
           <Form.Group as={Col} xs={12} md={4} controlId="formStockQuantity">
             <Form.Label>Stock Quantity</Form.Label>
-            <Form.Control type="text" placeholder="20,200" />
+            <Form.Control type="text" placeholder="20,200"                disabled={isPendingStatus}
+/>
           </Form.Group>
         </Row>
 
         <Row className="mb-3 align-items-center">
           <Form.Group as={Col} xs={12} md={10} controlId="formReasons">
             <Form.Label>Reasons</Form.Label>
-            <Form.Control as="select" onChange={handleReasonSelect}>
+            <Form.Control as="select" onChange={handleReasonSelect}               disabled={isPendingStatus}
+>
               <option>Select Reasons</option>
               {availableReasons.map((reason, index) => (
                 <option key={index} value={reason}>
@@ -320,6 +327,7 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
         {/* Show error message */}
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
 
+{!isPendingStatus && 
         <div className="d-flex justify-content-end mt-2">
           <button className="btnscndry" onClick={hide}>
             Cancel
@@ -331,7 +339,7 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
               "Save Changes"
             )}
           </button>
-        </div>
+        </div>}
       </Modal.Body>
     </Modal>
   );
