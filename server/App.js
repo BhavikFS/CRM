@@ -28,12 +28,14 @@ const Party = require("./Routes/Party/Party");
 const ModelInfo = require("./Routes/ModelInfo/ModelInfo");
 const Request = require("./Routes/Request/Request");
 const Sales = require("./Routes/Sales/Sales");
+const Stocks = require("./Routes/Stock/Stock");
 
 app.use("/api/user", User);
 app.use("/api/party", Party);
 app.use("/api/info", ModelInfo);
 app.use("/api/request", Request);
 app.use("/api", Sales);
+app.use("/api/stocks", Stocks);
 
 // MongoDB connection
 mongoose

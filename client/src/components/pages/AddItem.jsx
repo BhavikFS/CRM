@@ -731,7 +731,7 @@ function AddItem() {
                               field="netPrice"
                               header="NET PRICE"
                               style={{ width: "25%" }}
-                              body={(rowData) => "₹" + rowData?.model?.itemRate}
+                              body={(rowData) => "₹" + (rowData?.model?.listPrice * rowData?.model?.discount / 100).toFixed(2)}
                             ></Column>
                             <Column
                               field="reqPrice"
@@ -883,8 +883,9 @@ function AddItem() {
                               <Form.Label>Net Price (₹)</Form.Label>
                               <Form.Control
                                 type="text"
-                                placeholder="15,000"
+                                placeholder="Net Price"
                                 disabled
+                                value={(selectedModalDetail?.listPrice * selectedModalDetail?.discount) / 100}
                               />
                             </Form.Group>
 

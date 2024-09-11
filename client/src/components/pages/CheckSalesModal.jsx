@@ -56,7 +56,7 @@ function CheckSalesModal({ show, onHide, selectedModal }) {
                     <td>
                       {" "}
                       <span>Total Amount </span>
-                      <p> {sale.totalAmount}</p>
+                      <p> {sale.totalAmount.toFixed(2)}</p>
                     </td>
                     <td>
                       <span> Quantity </span>
@@ -64,7 +64,7 @@ function CheckSalesModal({ show, onHide, selectedModal }) {
                     </td>
                     <td>
                       {" "}
-                      <span>Item Rate </span> <p>{sale.itemRate}</p>
+                      <span>Item Rate </span> <p>{sale.itemRate.toFixed(2)}</p>
                     </td>
                   </tr>
                 ))}
