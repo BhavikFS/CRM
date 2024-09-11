@@ -71,6 +71,7 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
     } catch (error) {
       setErrorMessage("Error updating model info: " + error.message);
     } finally {
+      setSuccessMessage("")
       setLoading(false); // Hide the spinner
     }
   };
