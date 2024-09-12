@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Card, Form, Row, Col } from "react-bootstrap";
 import Layout from "../Layout/Layout";
 import "../../assets/css/AddItem.css";
-import UserCard from "./UserCard";
+// import UserCard from "./UserCard";
 import CheckSalesModal from "./CheckSalesModal";
-import DataTableComponent from "./DataTableComponent";
+// import DataTableComponent from "./DataTableComponent";
 import SelectUserModal from "./SelectUserModal";
 import axios from "axios";
 import { BASE_URL } from "../../constants/constants";
@@ -47,18 +47,18 @@ function AddItem() {
   const [editItemId, setEditItemId] = useState(null);
   const [pricingUser, setPricingUser] = useState([]);
   const [complianceUser, setComplianceUser] = useState([]);
+  const [selectedCustomers, setSelectedCustomers] = useState([]);
+
   const [role, setRole] = useState("");
   const handleEdit = (rowData) => {
     setEditMode(true);
-    setEditItemId(rowData._id);
-
-    // Set the selected modal and modal info data
-    setSelectedModal(rowData.model._id);
-    setSelectedModalDetail(rowData.model);
+    setEditItemId(rowData?._id);
+    setSelectedModalDetail(rowData?.model);
+    setSelectedModal(rowData?.model._id);
     setModalInfoData({
-      requestPrice: rowData.requestPrice,
-      requestDiscount: rowData.requestDiscount,
-      quantity: rowData.requestQuantity,
+      requestPrice: rowData?.requestPrice,
+      requestDiscount: rowData?.requestDiscount,
+      quantity: rowData?.requestQuantity,
     });
 
     // Show the form
@@ -99,8 +99,64 @@ function AddItem() {
   };
 
   const handleChange = (e) => {
-    setModalInfoData({ ...modalInfoData, [e.target.name]: e.target.value });
-    setErrorMessage("");
+    const { name, value } = e.target;
+
+    // Convert the value to a float or default to 0 if the value is empty
+    const parsedValue = value === "" ? 0 : parseFloat(value);
+
+    if (name === "requestPrice") {
+      const requestPrice = isNaN(parsedValue) ? 0 : parsedValue;
+
+      // Ensure requestPrice does not exceed listPrice
+      if (requestPrice > selectedModalDetail?.listPrice) {
+        setErrorMessage("Request price cannot be more than the list price.");
+        setModalInfoData({
+          ...modalInfoData,
+          requestPrice: selectedModalDetail?.listPrice,
+          requestDiscount: 0, // Reset discount
+        });
+      } else {
+        const requestDiscount =
+          ((selectedModalDetail?.listPrice - requestPrice) /
+            selectedModalDetail?.listPrice) *
+          100;
+        setModalInfoData({
+          ...modalInfoData,
+          requestPrice,
+          requestDiscount: isNaN(requestDiscount)
+            ? 0
+            : requestDiscount.toFixed(2),
+        });
+        setErrorMessage(""); // Clear error message
+      }
+    } else if (name === "requestDiscount") {
+      const requestDiscount = isNaN(parsedValue) ? 0 : parsedValue;
+
+      // Ensure requestDiscount does not exceed 100%
+      if (requestDiscount > 100) {
+        setErrorMessage("Discount cannot be more than 100%.");
+        setModalInfoData({
+          ...modalInfoData,
+          requestDiscount: 100,
+          requestPrice: 0, // 100% discount means price is 0
+        });
+      } else {
+        const requestPrice =
+          selectedModalDetail?.listPrice * (1 - requestDiscount / 100);
+        setModalInfoData({
+          ...modalInfoData,
+          requestDiscount,
+          requestPrice: isNaN(requestPrice) ? 0 : requestPrice.toFixed(2),
+        });
+        setErrorMessage(""); // Clear error message
+      }
+    } else {
+      setModalInfoData({
+        ...modalInfoData,
+        [name]: parsedValue, // Ensure parsed value is set to 0 if the input is empty
+      });
+      setErrorMessage("");
+    }
   };
 
   const handleSubmit = async () => {
@@ -168,14 +224,6 @@ function AddItem() {
       setShowAddItemForm(false);
     }
   };
-
-  const users = [
-    { id: 1, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 2, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 3, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 4, name: "Saathi G.", email: "abc@gmail.com" },
-    { id: 5, name: "Saathi G.", email: "abc@gmail.com" },
-  ];
   const handlePartyNameChange = (event) => {
     setSelectedParty(event.target.value);
     setSelectedSubParty("");
@@ -195,12 +243,6 @@ function AddItem() {
     setSelectedModal(event.target.value);
     fetchModelInfoList(event.target.value);
   };
-
-  // const PricingCoordinator = () => {
-  //   const handleRemove = (id) => {
-  //     console.log(`Remove user with id: ${id}`);
-  //   };
-  // };
 
   useEffect(() => {
     const fetchPartyData = async () => {
@@ -281,8 +323,7 @@ function AddItem() {
     if (selectedParty !== "") {
       if (selectedSubParty !== "") {
         console.log(selectedModal, "selectedModal-0");
-        const findModal = modalList.find((item) => item._id === selectedModal);
-        console.log(findModal, modalList, selectedModal, "findModal");
+        const findModal = modalList?.find((item) => item?._id === selectedModal);
         setSelectedModalDetail(findModal);
       } else {
         setSelectedModalDetail({});
@@ -309,8 +350,8 @@ function AddItem() {
       setModalInfoListLoading(false);
     }
   };
-  const statusBodyTemplate = (rowData) => {
-    setSelectedModalDetail(rowData);
+  const statusBodyTemplate = () => {
+    
     return (
       <button
         className="btn btn-outline-primary addBtn"
@@ -357,7 +398,6 @@ function AddItem() {
     );
   };
 
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
 
   const onHeaderCheckboxChange = (e) => {
     let _selectedCustomers = [];
@@ -771,7 +811,7 @@ function AddItem() {
                               field="status"
                               header="Status"
                               body={(rowData) =>
-                                statusBodyTemplate(rowData?.model?.itemCode)
+                                statusBodyTemplate(rowData)
                               }
                               style={{ width: "25%" }}
                             ></Column>
@@ -795,7 +835,7 @@ function AddItem() {
                                   ></i>
                                 </div>
                               } // Using PrimeIcons
-                              body={actionBodyTemplate}
+                              body={(rowData) => actionBodyTemplate(rowData)}
                               style={{ width: "25%" }}
                             ></Column>
                           </DataTable>{" "}
