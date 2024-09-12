@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./components/Layout/Dashboard";
 import Login from "./components/pages/Login";
 import AddItem from "./components/pages/AddItem";
+import AddItemV2 from "./components/pages/AddItemV2";
 import ProtectedRoutes from "./Utils/ProtectedRoutes";
 import History from "./components/pages/History/History";
 import Stage3 from "./components/pages/Stage/Stage3";
@@ -20,7 +21,7 @@ function App() {
         <Routes>
         <Route path="/" element={<ProtectedRoutes element={<Dashboard />} />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/addItem" element={<ProtectedRoutes element={<AddItem />} />} />
+          <Route path="/addItem" element={<ProtectedRoutes element={<AddItemV2 />} />} />
           <Route path="/history" element={<ProtectedRoutes element={<History />} />} />
           <Route path="/Pending-stageForCO" element={<ProtectedRoutes element={<Stage3  status="pending"/>} />} />
           <Route path="/Approved-stageForCO" element={<ProtectedRoutes element={<Stage3  status="approved"/>} />} />
