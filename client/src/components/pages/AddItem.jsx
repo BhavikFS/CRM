@@ -14,7 +14,7 @@ import { Column } from "primereact/column";
 import { Checkbox } from "primereact/checkbox";
 import profile from "../../assets/images/Avatar.png";
 import { useNavigate } from "react-router-dom";
-
+import { truncateString } from "../../Utils/truncateString";
 function AddItem() {
   const navigate = useNavigate();
   const [checkSalesModal, setCheckSalesModal] = useState(false);
@@ -323,7 +323,9 @@ function AddItem() {
     if (selectedParty !== "") {
       if (selectedSubParty !== "") {
         console.log(selectedModal, "selectedModal-0");
-        const findModal = modalList?.find((item) => item?._id === selectedModal);
+        const findModal = modalList?.find(
+          (item) => item?._id === selectedModal
+        );
         setSelectedModalDetail(findModal);
       } else {
         setSelectedModalDetail({});
@@ -351,7 +353,6 @@ function AddItem() {
     }
   };
   const statusBodyTemplate = () => {
-    
     return (
       <button
         className="btn btn-outline-primary addBtn"
@@ -397,7 +398,6 @@ function AddItem() {
       </div>
     );
   };
-
 
   const onHeaderCheckboxChange = (e) => {
     let _selectedCustomers = [];
@@ -737,7 +737,9 @@ function AddItem() {
                             <Column
                               header="NAME"
                               style={{ width: "20%" }}
-                              body={(rowData) => rowData?.model?.name}
+                              body={(rowData) =>
+                                truncateString(rowData?.model?.name, 8)
+                              }
                             ></Column>
                             <Column
                               field="date"
@@ -810,9 +812,7 @@ function AddItem() {
                             <Column
                               field="status"
                               header="Status"
-                              body={(rowData) =>
-                                statusBodyTemplate(rowData)
-                              }
+                              body={(rowData) => statusBodyTemplate(rowData)}
                               style={{ width: "25%" }}
                             ></Column>
                             <Column
@@ -1234,7 +1234,7 @@ function AddItem() {
       <CheckSalesModal
         show={checkSalesModal}
         onHide={() => setCheckSalesModal(false)}
-        selectedModal={selectedModalDetail.itemCode}
+        selectedModal={selectedModalDetail?.itemCode}
       />
 
       <SelectUserModal
