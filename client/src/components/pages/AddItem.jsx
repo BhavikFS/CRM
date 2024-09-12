@@ -30,7 +30,6 @@ function AddItem() {
   const [modalListLoading, setModalListLoading] = useState(true);
   const [selectedModal, setSelectedModal] = useState("");
   const [selectedModalDetail, setSelectedModalDetail] = useState({});
-  console.log(selectedModalDetail, 'selectedModalDetail')
   const [modalInfoData, setModalInfoData] = useState({
     requestPrice: 0,
     requestDiscount: 0,
@@ -41,7 +40,6 @@ function AddItem() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // For success messages
   const [ModalInfoList, setModalInfoList] = useState([]);
-  console.log(ModalInfoList, 'ModalInfo')
   const [ModalInfoListLoading, setModalInfoListLoading] = useState(false);
   const [showAddItemForm, setShowAddItemForm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -312,7 +310,7 @@ function AddItem() {
     }
   };
   const statusBodyTemplate = (rowData) => {
-    setSelectedModalDetail(rowData)
+    setSelectedModalDetail(rowData);
     return (
       <button
         className="btn btn-outline-primary addBtn"
@@ -731,7 +729,14 @@ function AddItem() {
                               field="netPrice"
                               header="NET PRICE"
                               style={{ width: "25%" }}
-                              body={(rowData) => "₹" + (rowData?.model?.listPrice * rowData?.model?.discount / 100).toFixed(2)}
+                              body={(rowData) =>
+                                "₹" +
+                                (
+                                  (rowData?.model?.listPrice *
+                                    rowData?.model?.discount) /
+                                  100
+                                ).toFixed(2)
+                              }
                             ></Column>
                             <Column
                               field="reqPrice"
@@ -765,7 +770,9 @@ function AddItem() {
                             <Column
                               field="status"
                               header="Status"
-                              body={(rowData)=>statusBodyTemplate(rowData?.model?.itemCode)}
+                              body={(rowData) =>
+                                statusBodyTemplate(rowData?.model?.itemCode)
+                              }
                               style={{ width: "25%" }}
                             ></Column>
                             <Column
@@ -885,7 +892,11 @@ function AddItem() {
                                 type="text"
                                 placeholder="Net Price"
                                 disabled
-                                value={(selectedModalDetail?.listPrice * selectedModalDetail?.discount) / 100}
+                                value={
+                                  (selectedModalDetail?.listPrice *
+                                    selectedModalDetail?.discount) /
+                                    100 || 0
+                                }
                               />
                             </Form.Group>
 
