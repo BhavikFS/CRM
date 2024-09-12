@@ -76,11 +76,14 @@
 
  .nameUser{
     font-size: 12px;
+    white-space: nowrap;
 }
 
  .nameUserSub{
     font-size: 11px;
-    color:gray
+    color:gray;
+    white-space: nowrap;
+
 }
 .COPO{
     background-color: #F2F7FD;
