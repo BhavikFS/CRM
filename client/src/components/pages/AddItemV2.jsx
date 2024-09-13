@@ -48,8 +48,27 @@ function AddItemV2() {
   const [pricingUser, setPricingUser] = useState([]);
   const [complianceUser, setComplianceUser] = useState([]);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
-
+  console.log(selectedCustomers, 'selectedCustomers')
   const [role, setRole] = useState("");
+  const [selectedPartyCode, setSelectedPartyCode] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState({});
+
+  useEffect(() => {
+    if (selectedPartyCode) {
+      const fetchPaymentData = async () => {
+        try {
+          const response = await axios.get(
+            `${BASE_URL}/payment?partyCode=${selectedPartyCode}`,
+            getAuthConfig()
+          );
+          setSelectedPayment(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchPaymentData();
+    }
+  }, [selectedPartyCode]);
   const handleEdit = (rowData) => {
     setEditMode(true);
     setEditItemId(rowData?._id);
@@ -267,6 +286,8 @@ function AddItemV2() {
     }
   };
   const handlePartyNameChange = (event) => {
+    const findParty = partyList.find((item) => item._id === selectedParty);
+    console.log(findParty, "findParty");
     setSelectedParty(event.target.value);
     setSelectedSubParty("");
     setSubPartyList([]);
@@ -309,7 +330,9 @@ function AddItemV2() {
 
   useEffect(() => {
     if (selectedParty !== "") {
-      const findParty = partyList.find((item) => item._id === selectedParty);
+      const findParty = partyList?.find((item) => item?._id === selectedParty);
+      const partyCode = findParty?.partyCode || "";
+      setSelectedPartyCode(partyCode);
       setSelectedPartyDetail(findParty);
       console.log(findParty, "findParty");
     } else {
@@ -517,7 +540,7 @@ function AddItemV2() {
                         as="select"
                         onChange={handlePartyNameChange}
                         value={selectedParty}
-                        disabled={partyListLoading}
+                        disabled={partyListLoading || ModalInfoList.length > 0}
                       >
                         {partyList && partyList.length > 0 ? (
                           <>
@@ -548,7 +571,9 @@ function AddItemV2() {
                             onChange={handleSubPartyNameChange}
                             value={selectedSubParty}
                             disabled={
-                              subPartyListLoading || selectedParty === ""
+                              subPartyListLoading ||
+                              selectedParty === "" ||
+                              ModalInfoList.length > 0
                             }
                           >
                             {subPartyList && subPartyList.length > 0 ? (
@@ -690,6 +715,7 @@ function AddItemV2() {
                             type="text"
                             placeholder="Yes"
                             disabled
+                            value={selectedPayment?.lockParty}
                           />
                         </Form.Group>
                       </Row>
@@ -718,7 +744,7 @@ function AddItemV2() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   setShowAddItemForm(true); // Show the form when "+ Add Item" is clicked
-                                  setSelectedModal("")
+                                  setSelectedModal("");
                                 }}
                               >
                                 + Add Item
@@ -1177,6 +1203,7 @@ function AddItemV2() {
                         >
                           <button
                             className="btn btnSelect"
+                            disabled={selectedPayment?.lockParty === "No"}
                             onClick={(e) => {
                               e.preventDefault();
                               setRole("CO");
