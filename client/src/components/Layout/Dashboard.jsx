@@ -9,6 +9,7 @@ import { get } from "../../libs/http-hydrate";
 import { getAuthConfig } from "../../libs/http-hydrate";
 import moment from "moment";
 import EditModal from "../Modal/EditModal";
+import { truncateString } from "../../Utils/truncateString";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,9 +22,9 @@ const Dashboard = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
   const [search, setSearch] = useState("");
-  const [EditModalShow,setEditModalShow] = useState(false);
+  const [EditModalShow, setEditModalShow] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null); // To track the selected customer for reject/return for revision
-  const [reload,setReload]=useState(false)
+  const [reload, setReload] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -116,13 +117,8 @@ const Dashboard = () => {
         ></span>
         Pending
       </div>
-    ) :
-    rowData.status === "ReviewBack" ?
-    (
-      <div
-        className="alert alert-info d-flex align-items-center"
-        role="alert"
-      >
+    ) : rowData.status === "ReviewBack" ? (
+      <div className="alert alert-info d-flex align-items-center" role="alert">
         <span
           style={{
             height: "10px",
@@ -135,11 +131,8 @@ const Dashboard = () => {
         ></span>
         Review Back
       </div>
-    ):rowData.status === "completed" ? (
-      <div
-        className="alert alert-info d-flex align-items-center"
-        role="alert"
-      >
+    ) : rowData.status === "completed" ? (
+      <div className="alert alert-info d-flex align-items-center" role="alert">
         <span
           style={{
             height: "10px",
@@ -152,8 +145,7 @@ const Dashboard = () => {
         ></span>
         Completed
       </div>
-    ) :
-    (
+    ) : (
       <div
         className="alert alert-danger d-flex align-items-center"
         role="alert"
@@ -173,6 +165,15 @@ const Dashboard = () => {
     );
   };
 
+  const calculateNetPrice = (rowData) => {
+    const netPrice =
+      (rowData?.modelInfo?.model?.listPrice *
+        rowData?.modelInfo?.model?.discount) /
+      100;
+
+    return netPrice?.toFixed(2);
+  };
+
   const actionBodyTemplate = (rowData) => {
     return (
       <>
@@ -186,10 +187,10 @@ const Dashboard = () => {
             viewBox="0 0 18 21"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            style={{cursor:"pointer"}}
-            onClick={(e) =>{
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
               e.preventDefault();
-              handleEditClick(rowData)
+              handleEditClick(rowData);
               //setEditModalShow(true)
             }}
           >
@@ -200,20 +201,23 @@ const Dashboard = () => {
             />
           </svg>
         ) : rowData?.status === "pending" ? (
-          <span style={{cursor:"pointer"}} onClick={() => handleEditClick(rowData)}>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => handleEditClick(rowData)}
+          >
             <i className="fas fa-eye"></i>
           </span>
-        ) : rowData?.status === "approved"?(
+        ) : rowData?.status === "approved" ? (
           <svg
             width="18"
             height="21"
             viewBox="0 0 18 21"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            style={{cursor:"pointer"}}
-            onClick={(e) =>{
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
               e.preventDefault();
-              navigate("/stage4",{state:{request:rowData}})
+              navigate("/stage4", { state: { request: rowData } });
             }}
           >
             <path
@@ -221,7 +225,9 @@ const Dashboard = () => {
               fill="#025FE0"
             />
           </svg>
-        ) : rowData?.status === "completed"  ? "" : (
+        ) : rowData?.status === "completed" ? (
+          ""
+        ) : (
           <svg
             width="18"
             height="21"
@@ -239,12 +245,12 @@ const Dashboard = () => {
     );
   };
 
-    // Open modal with selected customer data
-    const handleEditClick = (customer) => {
-      setSelectedCustomer(customer); // Set selected customer
-      setEditModalShow(true); // Show the modal
-    };
-  
+  // Open modal with selected customer data
+  const handleEditClick = (customer) => {
+    setSelectedCustomer(customer); // Set selected customer
+    setEditModalShow(true); // Show the modal
+  };
+
   return (
     <Layout>
       <div className="p-2 p-md-5 p-sm-3">
@@ -346,6 +352,14 @@ const Dashboard = () => {
                 body={(rowData) => rowData?.party?.name}
               ></Column>
               <Column
+                field="modelName"
+                header="Modal Name"
+                style={{ width: "15%" }}
+                body={(rowData) =>
+                  truncateString(rowData?.modelInfo?.model?.name, 8)
+                }
+              ></Column>
+              <Column
                 field="date"
                 header="Date"
                 style={{ width: "15%" }}
@@ -360,10 +374,16 @@ const Dashboard = () => {
                 body={(rowData) => rowData?.subParty?.name}
               ></Column>
               <Column
-                field="listPrice"
-                header="List Price"
+                field="requestPrice"
+                header="Request Price"
                 style={{ width: "10%" }}
-                body={(rowData) => rowData?.subParty?.name}
+                body={(rowData) => rowData?.modelInfo?.requestPrice}
+              ></Column>
+              <Column
+                field="netPrice"
+                header="Net Price"
+                style={{ width: "10%" }}
+                body={(rowData) => calculateNetPrice(rowData)}
               ></Column>
               <Column
                 field="status"
@@ -433,7 +453,12 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <EditModal show={EditModalShow} hide={() => setEditModalShow(false)} selectedModel={selectedCustomer}  setReload={setReload}/>
+      <EditModal
+        show={EditModalShow}
+        hide={() => setEditModalShow(false)}
+        selectedModel={selectedCustomer}
+        setReload={setReload}
+      />
     </Layout>
   );
 };

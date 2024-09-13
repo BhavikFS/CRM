@@ -15,7 +15,7 @@ import { Checkbox } from "primereact/checkbox";
 import profile from "../../assets/images/Avatar.png";
 import { useNavigate } from "react-router-dom";
 import { truncateString } from "../../Utils/truncateString";
-function AddItem() {
+function AddItemV2() {
   const navigate = useNavigate();
   const [checkSalesModal, setCheckSalesModal] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
@@ -48,8 +48,27 @@ function AddItem() {
   const [pricingUser, setPricingUser] = useState([]);
   const [complianceUser, setComplianceUser] = useState([]);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
-
+  console.log(selectedCustomers, 'selectedCustomers')
   const [role, setRole] = useState("");
+  const [selectedPartyCode, setSelectedPartyCode] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState({});
+
+  useEffect(() => {
+    if (selectedPartyCode) {
+      const fetchPaymentData = async () => {
+        try {
+          const response = await axios.get(
+            `${BASE_URL}/payment?partyCode=${selectedPartyCode}`,
+            getAuthConfig()
+          );
+          setSelectedPayment(response.data);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchPaymentData();
+    }
+  }, [selectedPartyCode]);
   const handleEdit = (rowData) => {
     setEditMode(true);
     setEditItemId(rowData?._id);
@@ -64,6 +83,48 @@ function AddItem() {
     // Show the form
     setShowAddItemForm(true);
   };
+
+  const fetchModalList = async () => {
+    setModalListLoading(true);
+    setModalList([]);
+    setSelectedModal("");
+    setSelectedModalDetail({});
+    try {
+      const payload = {
+        partyId: selectedParty,
+        subPartyId: selectedSubParty ? selectedSubParty : null,
+      };
+      const response = await axios.post(
+        `${BASE_URL}/party/get-models`,
+        payload,
+        getAuthConfig()
+      );
+      setModalList(response.data.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setModalListLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!partyListLoading && !subPartyListLoading) {
+      if (selectedParty) {
+        if (subPartyList.length > 0 && !selectedSubParty) {
+          console.log("Please select a sub-party");
+          return; // Exit the function if subPartyList is not empty but selectedSubParty is missing
+        } else {
+          fetchModalList();
+        }
+      }
+    }
+  }, [
+    selectedParty,
+    selectedSubParty,
+    subPartyList,
+    partyListLoading,
+    subPartyListLoading,
+  ]);
 
   const handleDeleteSelected = async () => {
     if (selectedCustomers.length === 0) {
@@ -225,23 +286,30 @@ function AddItem() {
     }
   };
   const handlePartyNameChange = (event) => {
+    const findParty = partyList.find((item) => item._id === selectedParty);
+    console.log(findParty, "findParty");
     setSelectedParty(event.target.value);
     setSelectedSubParty("");
     setSubPartyList([]);
-    setSelectedModal("");
-    setSelectedModalDetail({});
-    setModalList([]);
   };
 
   const handleSubPartyNameChange = (event) => {
     setSelectedSubParty(event.target.value);
-    setSelectedModal("");
-    setSelectedModalDetail({});
   };
 
   const handleModelNameChange = (event) => {
-    setSelectedModal(event.target.value);
-    fetchModelInfoList(event.target.value);
+    const { value } = event.target;
+    const findModal = modalList?.find((item) => item?._id === value);
+    setSelectedModal(value);
+    setSelectedModalDetail(findModal);
+    setModalInfoData({
+      ...modalInfoData,
+      requestPrice: 0,
+      requestDiscount: 0,
+      quantity: 0,
+      reasons: [],
+    });
+    // fetchModelInfoList(event.target.value);
   };
 
   useEffect(() => {
@@ -262,7 +330,9 @@ function AddItem() {
 
   useEffect(() => {
     if (selectedParty !== "") {
-      const findParty = partyList.find((item) => item._id === selectedParty);
+      const findParty = partyList?.find((item) => item?._id === selectedParty);
+      const partyCode = findParty?.partyCode || "";
+      setSelectedPartyCode(partyCode);
       setSelectedPartyDetail(findParty);
       console.log(findParty, "findParty");
     } else {
@@ -293,45 +363,19 @@ function AddItem() {
     }
   }, [selectedParty]);
 
-  useEffect(() => {
-    if (selectedParty !== "") {
-      if (selectedSubParty !== "") {
-        console.log(selectedSubParty, "selectedSubParty---");
-        const fetchModalData = async () => {
-          setModalListLoading(true);
-          try {
-            const response = await axios.get(
-              `${BASE_URL}/party/get-models/${selectedSubParty}`
-            );
-            setModalList(response.data.data);
-          } catch (error) {
-            console.log(error);
-          } finally {
-            setModalListLoading(false);
-          }
-        };
-
-        fetchModalData();
-      }
-    } else {
-      setModalList([]);
-      setSelectedModal("");
-    }
-  }, [selectedParty, selectedSubParty]);
-
-  useEffect(() => {
-    if (selectedParty !== "") {
-      if (selectedSubParty !== "") {
-        console.log(selectedModal, "selectedModal-0");
-        const findModal = modalList?.find(
-          (item) => item?._id === selectedModal
-        );
-        setSelectedModalDetail(findModal);
-      } else {
-        setSelectedModalDetail({});
-      }
-    }
-  }, [selectedModal]);
+  //   useEffect(() => {
+  //     if (selectedParty !== "") {
+  //       if (selectedSubParty !== "") {
+  //         console.log(selectedModal, "selectedModal-0");
+  //         const findModal = modalList?.find(
+  //           (item) => item?._id === selectedModal
+  //         );
+  //         setSelectedModalDetail(findModal);
+  //       } else {
+  //         setSelectedModalDetail({});
+  //       }
+  //     }
+  //   }, [selectedModal]);
 
   const fetchModelInfoList = async (modelID) => {
     setModalInfoListLoading(true);
@@ -496,7 +540,7 @@ function AddItem() {
                         as="select"
                         onChange={handlePartyNameChange}
                         value={selectedParty}
-                        disabled={partyListLoading}
+                        disabled={partyListLoading || ModalInfoList.length > 0}
                       >
                         {partyList && partyList.length > 0 ? (
                           <>
@@ -527,7 +571,9 @@ function AddItem() {
                             onChange={handleSubPartyNameChange}
                             value={selectedSubParty}
                             disabled={
-                              subPartyListLoading || selectedParty === ""
+                              subPartyListLoading ||
+                              selectedParty === "" ||
+                              ModalInfoList.length > 0
                             }
                           >
                             {subPartyList && subPartyList.length > 0 ? (
@@ -669,6 +715,7 @@ function AddItem() {
                             type="text"
                             placeholder="Yes"
                             disabled
+                            value={selectedPayment?.lockParty}
                           />
                         </Form.Group>
                       </Row>
@@ -697,6 +744,7 @@ function AddItem() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   setShowAddItemForm(true); // Show the form when "+ Add Item" is clicked
+                                  setSelectedModal("");
                                 }}
                               >
                                 + Add Item
@@ -1155,6 +1203,7 @@ function AddItem() {
                         >
                           <button
                             className="btn btnSelect"
+                            disabled={selectedPayment?.lockParty === "No"}
                             onClick={(e) => {
                               e.preventDefault();
                               setRole("CO");
@@ -1252,4 +1301,4 @@ function AddItem() {
   );
 }
 
-export default AddItem;
+export default AddItemV2;
