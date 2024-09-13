@@ -137,7 +137,7 @@ router.get("/requests-list", authenticateToken, async (req, res) => {
 
 router.post("/update-status", authenticateToken, async (req, res) => {
   try {
-    const { id, status, comments, roleToupdate ,reasons} = req.body;
+    const { id, status, comments, roleToupdate, reasons } = req.body;
 
     const request = await Request.findById(id);
     if (!request) {
@@ -150,7 +150,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
         user: req.user._id,
         status: status,
         comments: comments,
-        reasons: reasons
+        reasons: reasons,
       };
 
       switch (status) {
@@ -195,7 +195,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
                 user: req.user._id,
                 status: status,
                 comments: comments,
-                reasons: reasons
+                reasons: reasons,
               },
               status: status,
             },
@@ -261,8 +261,35 @@ router.post("/update-status", authenticateToken, async (req, res) => {
     }
 
     // If there is a manager update needed
+    let updatedStatus = "";
     if (req.user.role === "Manager") {
       if (roleToupdate === "CO") {
+        // Party Info
+        console.log(request.pricingUsers.status, "request.pricingUsers.status");
+        switch (status) {
+          case "rejected":
+            updatedStatus = "rejected";
+            break;
+          case "approved":
+            switch (request.pricingUsers.status) {
+              case "pending":
+                updatedStatus = "pending";
+                break;
+              case "rejected":
+                updatedStatus = "rejected";
+                break;
+              case "ReviewRequired":
+              case "ReviewBack": // Handle ReviewBack as ReviewRequired
+                updatedStatus = "ReviewRequired";
+                break;
+              default:
+                updatedStatus = "approved";
+                break;
+            }
+            break;
+          default:
+            break;
+        }
         await Request.updateMany(
           { requestID: request.requestID },
           {
@@ -273,7 +300,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
                 status: status,
                 comments: comments,
               },
-              status: status,
+              status: updatedStatus,
             },
           }
         );
@@ -301,7 +328,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/completedRequest", authenticateToken,async (req, res) => {
+router.post("/completedRequest", authenticateToken, async (req, res) => {
   try {
     const { requestId } = req.query;
     const { freightCharge, materialInsuranceRate, emailUserList } = req.body;
@@ -314,26 +341,39 @@ router.post("/completedRequest", authenticateToken,async (req, res) => {
 
     // Validations
     if (typeof freightCharge !== "number" || freightCharge <= 0) {
-      return res.status(400).json({ error: "Freight charge must be a positive number" });
+      return res
+        .status(400)
+        .json({ error: "Freight charge must be a positive number" });
     }
 
-    if (typeof materialInsuranceRate !== "number" || materialInsuranceRate <= 0) {
-      return res.status(400).json({ error: "Material insurance rate must be a positive number" });
+    if (
+      typeof materialInsuranceRate !== "number" ||
+      materialInsuranceRate <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Material insurance rate must be a positive number" });
     }
 
     if (!Array.isArray(emailUserList) || emailUserList.length === 0) {
-      return res.status(400).json({ error: "Email user list must be an array of valid user IDs" });
+      return res
+        .status(400)
+        .json({ error: "Email user list must be an array of valid user IDs" });
     }
 
     // Validate each email user is a valid ObjectId and exists in the User model
     for (const userId of emailUserList) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ error: `Invalid user ID in emailUserList: ${userId}` });
+        return res
+          .status(400)
+          .json({ error: `Invalid user ID in emailUserList: ${userId}` });
       }
 
       const userExists = await User.findById(userId);
       if (!userExists) {
-        return res.status(400).json({ error: `User not found for ID: ${userId}` });
+        return res
+          .status(400)
+          .json({ error: `User not found for ID: ${userId}` });
       }
     }
 
@@ -346,7 +386,9 @@ router.post("/completedRequest", authenticateToken,async (req, res) => {
     // Save the updated request
     await request.save();
 
-    return res.status(200).json({ message: "Request updated and marked as completed", request });
+    return res
+      .status(200)
+      .json({ message: "Request updated and marked as completed", request });
   } catch (error) {
     console.error("Error updating request:", error);
     return res.status(500).json({ error: "Server error" });
