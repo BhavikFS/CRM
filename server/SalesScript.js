@@ -4,6 +4,12 @@ const path = require("path");
 const Sales = require("./Models/Sales");
 const Model = require("./Models/Modal"); // Assuming you have a Model schema
 const cliProgress = require('cli-progress');
+const moment = require('moment');
+
+const excelDateToJSDate = (serial) => {
+  const baseDate = new Date(Date.UTC(1899, 11, 30)); // Excel's base date is December 30, 1899
+  return new Date(baseDate.getTime() + (serial * 86400000)); // 86400000 ms in a day
+};
 
 // Connect to MongoDB
 mongoose.connect(
@@ -59,17 +65,32 @@ const migrateSalesData = async () => {
         continue;
       }
 
+      
       if (model) {
-        // Calculate Item Rate
+        // Calculate Item Rate and Date
+        let salesDate;
+      const salesDateSerial = rowData['Invoice_Date'];
+      if (typeof salesDateSerial === 'number') {
+        salesDate = excelDateToJSDate(salesDateSerial);
+      } else {
+        // Handle case where the date is already a string or in another format
+        salesDate = new Date(salesDateSerial);
+      }
+
+      if (!salesDate || isNaN(salesDate.getTime())) {
+        console.log(`Invalid date format for Invoice_Date: ${salesDateSerial}`);
+        continue;
+      }
         const itemRate = rowData["Taxable_Amount"] / rowData["Sent_Qty"];
 
         // Create a new Sales record
         const salesRecord = new Sales({
           model: model._id,
           itemCode: itemCode,
-          salesDate: new Date(rowData["Invoice_Date"]),
+          salesDate: salesDate,
           totalAmount: rowData["Taxable_Amount"],
           salesQuantity: rowData["Sent_Qty"],
+          invoiceNumber: rowData["Invoice_No"],
           itemRate: itemRate,
         });
 

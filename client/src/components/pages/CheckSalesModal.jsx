@@ -55,6 +55,11 @@ function CheckSalesModal({ show, onHide, selectedModal }) {
                     </td>
                     <td>
                       {" "}
+                      <span>invoice Number </span>
+                      <p> {sale.invoiceNumber}</p>
+                    </td>
+                    <td>
+                      {" "}
                       <span>Total Amount </span>
                       <p> {sale.totalAmount.toFixed(2)}</p>
                     </td>
