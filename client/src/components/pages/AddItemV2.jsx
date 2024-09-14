@@ -45,10 +45,10 @@ function AddItemV2() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
-  const [pricingUser, setPricingUser] = useState([]);
-  const [complianceUser, setComplianceUser] = useState([]);
+  const [pricingUser, setPricingUser] = useState(null);
+  const [complianceUser, setComplianceUser] = useState(null);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
-  console.log(selectedCustomers, 'selectedCustomers')
+  console.log(selectedCustomers, "selectedCustomers");
   const [role, setRole] = useState("");
   const [selectedPartyCode, setSelectedPartyCode] = useState("");
   const [selectedPayment, setSelectedPayment] = useState({});
@@ -470,31 +470,34 @@ function AddItemV2() {
   const isAllSelected =
     ModalInfoList.length > 0 &&
     selectedCustomers.length === ModalInfoList.length;
+
   const handleSubmitRequest = async () => {
     setModalInfoLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (!pricingUser._id) {
+    if (!pricingUser) {
       setErrorMessage("Please select at least one Pricing Coordinator.");
       setModalInfoLoading(false);
       return;
     }
-
-    if (!complianceUser._id) {
-      setErrorMessage("Please select at least one Compliance Officer.");
-      setModalInfoLoading(false);
-      return;
+    if (selectedPayment?.lockParty === "Yes") {
+      if (!complianceUser) {
+        setErrorMessage("Please select at least one Finance & Accounts.");
+        setModalInfoLoading(false);
+        return;
+      }
     }
 
     const payload = {
       party: selectedParty,
-      subParty: selectedSubParty,
+      subParty: selectedSubParty || null,
       modelInfo: ModalInfoList.map((item) => item._id),
       pricingUsers: pricingUser._id,
-      financeUsers: complianceUser._id,
-      status: "Pending", // Default status, adjust as necessary
+      financeUsers: complianceUser?._id ? complianceUser?._id : null,
+      lockParty: selectedPayment?.lockParty
     };
+
 
     try {
       const response = await axios.post(
@@ -1129,7 +1132,7 @@ function AddItemV2() {
                 </Card.Body>
               </Card>
             )}
-            {selectedModal && (
+            {ModalInfoList.length > 0 && (
               <Row className="mt-1 gap-2 mb-5">
                 <Col>
                   <Card className="p-3">

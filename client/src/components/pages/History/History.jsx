@@ -420,7 +420,7 @@ export default function History() {
               <Card className="p-3">
                 <Row className="my-2">
                   <Col className="d-flex justify-content-between align-items-center ">
-                    <h6>Compliance Officer</h6>
+                    <h6>Finance & Accounts</h6>
                   </Col>
                 </Row>
 

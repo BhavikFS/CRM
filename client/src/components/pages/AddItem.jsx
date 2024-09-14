@@ -438,7 +438,7 @@ function AddItem() {
     }
 
     if (!complianceUser._id) {
-      setErrorMessage("Please select at least one Compliance Officer.");
+      setErrorMessage("Please select at least one Finance & Accounts.");
       setModalInfoLoading(false);
       return;
     }

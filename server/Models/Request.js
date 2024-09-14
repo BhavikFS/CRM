@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 const approvalSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "ReviewRequired", "ReviewBack"],
       required: true,
     },
-    reasons: [{type: String, required: true}],
+    reasons: [{type: String}],
     comments: { type: String },
   },
   { timestamps: true }
@@ -16,7 +16,7 @@ const approvalSchema = new mongoose.Schema(
 
 const managerSchema = mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

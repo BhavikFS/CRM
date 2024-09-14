@@ -25,6 +25,15 @@ const Dashboard = () => {
   const [EditModalShow, setEditModalShow] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null); // To track the selected customer for reject/return for revision
   const [reload, setReload] = useState(false);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const handleChangeStatus = (e) => {
+    setStatusFilter(e.target.value);
+  }
+
+  const startIndex = (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, totalRequests);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -36,12 +45,14 @@ const Dashboard = () => {
             limit,
             sortBy,
             search,
+            statusFilter
           },
           ...getAuthConfig(),
         });
 
         setCustomers(response.data.requests);
         setTotalPages(response.data.totalPages);
+        setTotalRequests(response.data.totalRequests);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -50,7 +61,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [page, limit, sortBy, search, reload]);
+  }, [page, limit, sortBy, search, reload, statusFilter]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -60,9 +71,6 @@ const Dashboard = () => {
     setSortBy(e.target.value);
   };
 
-  const handleLimitChange = (e) => {
-    setLimit(e.target.value);
-  };
   const statusBodyTemplate = (rowData) => {
     return rowData.status === "approved" ? (
       <div
@@ -307,19 +315,18 @@ const Dashboard = () => {
             <Form.Control
               as="select"
               style={{ fontSize: "0.75rem", height: "40px" }}
+              onChange={handleChangeStatus}
+              value={statusFilter}
             >
-              <option value="">Select Filter</option>
-              <option value="Saathi UIUX Design Company 1">
-                Saathi UIUX Design Company 1
+              <option value="">Select All</option>
+              <option value="approved">
+                Approved
               </option>
-              <option value="Saathi UIUX Design Company 2">
-                Saathi UIUX Design Company 2
+              <option value="review-required">
+                Review Required
               </option>
-              <option value="Saathi UIUX Design Company 3">
-                Saathi UIUX Design Company 3
-              </option>
-              <option value="Saathi UIUX Design Company 4">
-                Saathi UIUX Design Company 4
+              <option value="pending">
+                Pending
               </option>
             </Form.Control>
           </div>
@@ -421,9 +428,8 @@ const Dashboard = () => {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              &nbsp; | &nbsp; per pages &nbsp;| &nbsp; {(page - 1) * limit + 1}-
-              {Math.min(page * limit, totalPages * limit)} of{" "}
-              {totalPages * limit}
+              &nbsp; | &nbsp; per page &nbsp;| &nbsp; {startIndex}-{endIndex} of{" "}
+              {totalRequests}
             </div>
           </div>
 
