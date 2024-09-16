@@ -1,13 +1,12 @@
 const Notification = require('../Models/Notification')
-async function sendNotification (title, body, userId, modelType, mentionedUser, mentionedUsermodel_type, type) {
+async function sendNotification (title, body, userId, mentionedUser, type , status) {
   const notificationData = {
     title,
     body,
     user_id: userId,
-    model_type: modelType,
     mentionedUser: mentionedUser && mentionedUser,
-    mentionedUsermodel_type: mentionedUsermodel_type && mentionedUsermodel_type,
-    type: type && type
+    type: type && type,
+    status: status && status
   }
   try {
     await Notification.createNotification(notificationData)

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../../assets/css/header.css";
 import notificationIcon from "../../assets/images/Notification.svg";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -7,6 +7,7 @@ import logo from "../../assets/images/CRMLogo.png";
 import profile from "../../assets/images/Avatar.png";
 import { Dropdown } from "react-bootstrap";
 import Auth from "../../libs/auth";
+import { get, getAuthConfig } from "../../libs/http-hydrate";
 
 const Header = () => {
   const location = useLocation();
@@ -18,6 +19,26 @@ const Header = () => {
   const handleHistoryClick = () => {
     setIsHistoryOpen(!isHistoryOpen);
   };
+  const [notifications, setNotifications] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+    // Fetch notifications with pagination
+    const fetchNotifications = async (page = 1) => {
+      try {
+        const response = await get(`/api/notifications?page=${page}`,getAuthConfig());
+        setNotifications(response.data.notifications);
+        setCurrentPage(response.data.currentPage);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+  
+    // Fetch notifications on component mount
+    useEffect(() => {
+      fetchNotifications();
+    }, []);
   return (
     <>
       <Navbar
@@ -299,7 +320,43 @@ const Header = () => {
                     />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item
+                  {notifications.length > 0 ? (
+                      notifications.map((notification, index) => (
+                        <Dropdown.Item key={index}>
+                          <div className="d-flex justify-content-between">
+                            <div className="">
+                              <span style={{ fontSize: "16px", fontWeight: "500" }}>
+                                {notification.title}
+                              </span>
+                              <br />
+                              <span style={{ fontSize: "13px" }}>
+                                {notification.body}
+                              </span>
+                            </div>
+
+                            <div className={`alert p-2 ${notification.status === 'Approved' ? 'alert-success' : notification.status === 'Rejected' ? 'alert-danger' : 'alert-warning'}`} role="alert">
+                              {notification.status}
+                            </div>
+                          </div>
+                          <div className="d-flex justify-content-end">
+                            <span style={{ color: "#ABABAB" }}>
+                              {new Date(notification.created_at).toLocaleTimeString()}
+                            </span>
+                          </div>
+                          <hr />
+                        </Dropdown.Item>
+                      ))
+                    ) : (
+                      <p>No notifications</p>
+                    )}
+                    {currentPage < totalPages && (
+                      <Dropdown.Item
+                        onClick={() => fetchNotifications(currentPage + 1)}
+                      >
+                        Load more...
+                      </Dropdown.Item>
+                    )}
+                    {/* <Dropdown.Item
                       onClick={(e) => {
                         navigate("/doctorDetailsForm");
                       }}
@@ -363,7 +420,7 @@ const Header = () => {
                       <div className="d-flex justify-content-end">
                         <span style={{color:"#ABABAB"}}>3 Hours Ago</span>
                       </div>
-                    </Dropdown.Item>
+                    </Dropdown.Item> */}
                   </Dropdown.Menu>
                 </Dropdown>
 

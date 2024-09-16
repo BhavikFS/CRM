@@ -85,9 +85,34 @@ const PricingCo = ({ status }) => {
         getAuthConfig()
       );
 
-      setCustomers((prevCustomers) =>
-        prevCustomers.filter((customer) => customer._id !== id)
-      );
+      if (user?.role === "CO") {
+        setUniqueCustomers((prevUniqueCustomers) => {
+          const updatedUniqueCustomers = prevUniqueCustomers.filter(
+            (customer) => customer._id !== id
+          );
+      
+          // Find the requestID of the removed customer
+          const removedCustomer = prevUniqueCustomers.find(
+            (customer) => customer._id === id
+          );
+          
+          // If the customer exists in uniqueCustomers, remove from customers too
+          if (removedCustomer) {
+            setCustomers((prevCustomers) =>
+              prevCustomers.filter(
+                (customer) => customer.requestID !== removedCustomer.requestID
+              )
+            );
+          }
+      
+          return updatedUniqueCustomers;
+        });
+      } else {
+        setCustomers((prevCustomers) =>
+          prevCustomers.filter((customer) => customer._id !== id)
+        );
+      }
+      
     } catch (err) {
       setError(`Failed to update status: ${err.message}`);
     } finally {
@@ -105,13 +130,20 @@ const PricingCo = ({ status }) => {
     setRejectModal(false);
   };
 
-  // Function to filter out customers with duplicate requestID
-  const uniqueCustomers = customers?.reduce((acc, customer) => {
-    if (!acc.find((item) => item.requestID === customer.requestID)) {
-      acc.push(customer);
+  const [uniqueCustomers, setUniqueCustomers] = useState([]);
+
+  useEffect(() => {
+    if (customers) {
+      const unique = customers.reduce((acc, customer) => {
+        if (!acc.find((item) => item.requestID === customer.requestID)) {
+          acc.push(customer);
+        }
+        return acc;
+      }, []);
+      setUniqueCustomers(unique);
     }
-    return acc;
-  }, []);
+  }, [customers]); // Recalculate when customers change
+  
 
     // Handle removal of a selected reason
     const handleRemoveReason = (customerId, reasonToRemove) => {
