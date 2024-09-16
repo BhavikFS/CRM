@@ -3,7 +3,7 @@ import { Modal, Form, Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import profile from "../../assets/images/Avatar.png";
 import { getAuthConfig, put } from "../../libs/http-hydrate"; // Import the 'put' function for API request
 
-const EditModal = ({ show, hide, selectedModel ,setReload}) => {
+const EditModal = ({ show, hide, selectedModel, setReload }) => {
   console.log(selectedModel, "editmodaldata");
   const [modelName, setModelName] = useState("");
   const [subParty, setSubParty] = useState("");
@@ -20,6 +20,11 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
   const [loading, setLoading] = useState(false); // State to handle loading spinner
   const [errorMessage, setErrorMessage] = useState(""); // State to handle error message
   const [successMessage, setSuccessMessage] = useState(""); // State to handle success message
+
+  const netPrice =
+    (selectedModel?.modelInfo?.model?.listPrice *
+      selectedModel?.modelInfo?.model?.discount) /
+      100 || 0;
 
   // Prefill the modal form with selected model data when it opens
   useEffect(() => {
@@ -62,16 +67,13 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
         getAuthConfig()
       );
 
-   
-        setSuccessMessage("Model updated successfully!");
-        setReload(true)
-        hide(); // Close the modal after showing the success message
-
-    
+      setSuccessMessage("Model updated successfully!");
+      setReload(true);
+      hide(); // Close the modal after showing the success message
     } catch (error) {
       setErrorMessage("Error updating model info: " + error.message);
     } finally {
-      setSuccessMessage("")
+      setSuccessMessage("");
       setLoading(false); // Hide the spinner
     }
   };
@@ -95,9 +97,9 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
             <Form.Label>Model Name</Form.Label>
             <Form.Control
               as="select"
-             // value={modelName}
-             // onChange={(e) => setModelName(e.target.value)}
-             disabled
+              // value={modelName}
+              // onChange={(e) => setModelName(e.target.value)}
+              disabled
             >
               <option value="">{selectedModel?.modelInfo?.model?.name}</option>
             </Form.Control>
@@ -108,11 +110,14 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
             <Form.Control
               as="select"
               //value={subParty}
-             // onChange={(e) => setSubParty(e.target.value)}
-             disabled
+              // onChange={(e) => setSubParty(e.target.value)}
+              disabled
             >
-                            <option value="">{selectedModel?.subParty?.name}</option>
-
+              <option value="">
+                {selectedModel?.subParty?.name
+                  ? selectedModel?.subParty?.name
+                  : "N/A"}
+              </option>
             </Form.Control>
           </Form.Group>
 
@@ -124,7 +129,12 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
             disabled
           >
             <Form.Label>List Price (₹)</Form.Label>
-            <Form.Control type="text" placeholder="10,100" disabled />
+            <Form.Control
+              type="text"
+              value={selectedModel?.modelInfo?.model?.listPrice}
+              placeholder="List Price"
+              disabled
+            />
           </Form.Group>
         </Row>
 
@@ -133,14 +143,20 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
             <Form.Label>Discount (%)</Form.Label>
             <Form.Control
               type="text"
-              placeholder={`${selectedModel?.modelInfo?.model?.discount} %`}
+              placeholder="Discount (%)"
+              value={selectedModel?.modelInfo?.model?.discount}
               disabled
             />
           </Form.Group>
 
           <Form.Group as={Col} xs={12} md={4} controlId="formNetPrice">
             <Form.Label>Net Price (₹)</Form.Label>
-            <Form.Control type="text" placeholder="15,000" disabled />
+            <Form.Control
+              type="text"
+              placeholder="Net Price"
+              value={netPrice}
+              disabled
+            />
           </Form.Group>
 
           <Form.Group as={Col} xs={12} md={4} controlId="formRequestPrice">
@@ -176,16 +192,23 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
 
           <Form.Group as={Col} xs={12} md={4} controlId="formStockQuantity">
             <Form.Label>Stock Quantity</Form.Label>
-            <Form.Control type="text" placeholder="20,200"                disabled={isPendingStatus}
-/>
+            <Form.Control
+              type="text"
+              placeholder="Stock Quantity"
+              value={selectedModel?.modelInfo?.model?.quantity}
+              disabled={isPendingStatus}
+            />
           </Form.Group>
         </Row>
 
         <Row className="mb-3 align-items-center">
           <Form.Group as={Col} xs={12} md={10} controlId="formReasons">
             <Form.Label>Reasons</Form.Label>
-            <Form.Control as="select" onChange={handleReasonSelect}               disabled={isPendingStatus}
->
+            <Form.Control
+              as="select"
+              onChange={handleReasonSelect}
+              disabled={isPendingStatus}
+            >
               <option>Select Reasons</option>
               {availableReasons.map((reason, index) => (
                 <option key={index} value={reason}>
@@ -327,19 +350,24 @@ const EditModal = ({ show, hide, selectedModel ,setReload}) => {
         {/* Show error message */}
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
 
-{!isPendingStatus && 
-        <div className="d-flex justify-content-end mt-2">
-          <button className="btnscndry" onClick={hide}>
-            Cancel
-          </button>
-          <button className="btnprm" onClick={handleSubmit} disabled={loading}>
-            {loading ? (
-              <Spinner animation="border" variant="light" />
-            ) : (
-              "Save Changes"
-            )}
-          </button>
-        </div>}
+        {!isPendingStatus && (
+          <div className="d-flex justify-content-end mt-2">
+            <button className="btnscndry" onClick={hide}>
+              Cancel
+            </button>
+            <button
+              className="btnprm"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <Spinner animation="border" variant="light" />
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </div>
+        )}
       </Modal.Body>
     </Modal>
   );
