@@ -15,6 +15,9 @@ const NotificationSchema = new mongoose.Schema({
   type: {
     type: String
   },
+  status: {
+    type: String
+  },
   isRead: {
     type: Boolean,
     default: false // Default to unread

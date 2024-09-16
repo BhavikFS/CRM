@@ -7,6 +7,8 @@ const SubParty = require("../../Models/SubParty");
 const ModelInfo = require("../../Models/ModelInfo");
 const authenticateToken = require("../../Middleware/AuthenticateToken");
 const mongoose = require("mongoose");
+const sendEmailToMultipleUsers = require("../../Utils/sendEmail");
+const sendNotification = require("../../Utils/sendNotification");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -47,11 +49,11 @@ router.post("/request-generate", authenticateToken, async (req, res) => {
         return res.status(400).json({ error: "Invalid modelInfo ID" });
       }
 
-      const financeUserStatus = lockParty === "Yes" ? "pending" : "approved"
+      const financeUserStatus = lockParty === "Yes" ? "pending" : "approved";
       const financeUserPayload = {
         user: lockParty === "Yes" ? financeUsers : null,
-        status: financeUserStatus
-      }
+        status: financeUserStatus,
+      };
 
       const newRequest = new Request({
         party,
@@ -110,8 +112,10 @@ router.get("/requests-list", authenticateToken, async (req, res) => {
     // Set the filter based on the user role
     if (userRole === "PC") {
       filter["pricingUsers.status"] = statusFilter;
+      filter['pricingUsers.user'] = req?.user?._id
     } else if (userRole === "CO") {
       filter["financeUsers.status"] = statusFilter;
+      filter['financeUsers.user'] = req?.user?._id
     } else if (userRole === "Sales") {
       filter.generatedBy = req?.user?._id;
     } else if (userRole === "Manager") {
@@ -123,7 +127,9 @@ router.get("/requests-list", authenticateToken, async (req, res) => {
 
     // Handle search term
     if (searchTerm) {
-      const partyIds = await Party.find({ name: { $regex: searchTerm, $options: "i" } }).select('_id');
+      const partyIds = await Party.find({
+        name: { $regex: searchTerm, $options: "i" },
+      }).select("_id");
       filter["party"] = { $in: partyIds };
     }
 
@@ -162,9 +168,6 @@ router.get("/requests-list", authenticateToken, async (req, res) => {
   }
 });
 
-
-
-
 router.post("/update-status", authenticateToken, async (req, res) => {
   try {
     const { id, status, comments, roleToupdate, reasons } = req.body;
@@ -173,6 +176,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
+    sendNotification(`Request ${status}`,`Request Marked ${status} by ${req?.user?.role}`,request?.generatedBy, null ,"Request",status)
 
     // Update for pricingUsers (PC)
     if (req.user.role === "PC") {
@@ -378,6 +382,7 @@ router.post("/update-status", authenticateToken, async (req, res) => {
       }
     }
 
+
     if (req.user.role != "CO") {
       await request.save();
       res.json({ message: "Request updated successfully", request });
@@ -446,6 +451,16 @@ router.post("/completedRequest", authenticateToken, async (req, res) => {
     // Save the updated request
     await request.save();
 
+    const recipients = ["pvmaradiya482000@gmail.com"];
+    const subject = "Request is completed";
+    const message = `<h2>Hello from the CRM , request marked as completed by ${req?.user?.username}</h2>`;
+
+    // Loop through recipients and send email to each one
+    recipients.forEach((recipient) => {
+      sendEmailToMultipleUsers(recipient, subject, message);
+    });
+
+    sendNotification("Request Completed","Request Marked Completed",req?.user?._id, null ,"Request","Completed")
     return res
       .status(200)
       .json({ message: "Request updated and marked as completed", request });

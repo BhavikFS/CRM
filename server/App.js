@@ -30,7 +30,7 @@ const Request = require("./Routes/Request/Request");
 const Sales = require("./Routes/Sales/Sales");
 const Stocks = require("./Routes/Stock/Stock");
 const Payment = require("./Routes/Payment/Payment");
-
+const Notification = require("./Routes/Notification/Notification")
 app.use("/api/user", User);
 app.use("/api/party", Party);
 app.use("/api/info", ModelInfo);
@@ -38,6 +38,7 @@ app.use("/api/request", Request);
 app.use("/api", Sales);
 app.use("/api/stocks", Stocks);
 app.use("/api/payment", Payment);
+app.use("/api", Notification);
 
 // MongoDB connection
 mongoose

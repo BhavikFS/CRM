@@ -4,6 +4,7 @@ const ModelInfo = require("../../Models/ModelInfo"); // Adjust the path to your 
 const Model = require("../../Models/Modal"); // Adjust the path to your Model model
 const authenticateToken = require("../../Middleware/AuthenticateToken");
 const Request = require("../../Models/Request"); // Adjust the path to your Model model
+const sendNotification = require("../../Utils/sendNotification");
 
 // POST endpoint to create a new request
 router.post("/create-model-info", authenticateToken,async (req, res) => {
@@ -130,13 +131,27 @@ router.put('/update-model-info/:id', authenticateToken, async (req, res) => {
       { new: true }
     );
 
+
     if (request) {
+
+      let selectedUser ;
+      if (request.financeUsers.status === "ReviewBack")
+      {
+        selectedUser = request?.financeUsers?.user
+      }
+      else{
+        selectedUser = request?.pricingUsers?.user
+      }
       // Update approval statuses for pricingUsers and financeUsers if needed
       request.pricingUsers.status = 'pending';
       request.financeUsers.status = 'pending';
 
+      await sendNotification(`Request Resubmitted`,`Request Marked Resubmitted by ${req?.user?.username}`,selectedUser, null ,"Request","Pending")
+
       await request.save(); // Save the updated request
     }
+    
+
   }
     return res.status(200).json({ success: true, data: updatedModelInfo });
   } catch (error) {
