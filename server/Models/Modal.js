@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const modelSchema = new mongoose.Schema({
   name: { type: String, required: true},
-  itemCode: { type: String, required: true, unique: true },
+  itemCode: { type: String, required: true },
   party: { type: mongoose.Schema.Types.ObjectId, ref: 'Party', required: true },
   subParty: { type: mongoose.Schema.Types.ObjectId, ref: 'SubParty' },
   listPrice: {type: Number},
