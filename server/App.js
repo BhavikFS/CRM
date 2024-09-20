@@ -32,6 +32,9 @@ const Stocks = require("./Routes/Stock/Stock");
 const Payment = require("./Routes/Payment/Payment");
 const Notification = require("./Routes/Notification/Notification")
 const Migration = require("./Routes/Migration/migration")
+const Maintain = require("./Routes/Maintain/Maintain")
+const Admin = require("./Routes/Admin/Admin")
+
 app.use("/api/user", User);
 app.use("/api/party", Party);
 app.use("/api/info", ModelInfo);
@@ -41,6 +44,8 @@ app.use("/api/stocks", Stocks);
 app.use("/api/payment", Payment);
 app.use("/api", Notification);
 app.use("/api", Migration);
+app.use("/api",Maintain)
+app.use("/api",Admin)
 
 // MongoDB connection
 mongoose
